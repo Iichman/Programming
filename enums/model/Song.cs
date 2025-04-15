@@ -30,7 +30,11 @@ namespace Programming.Model
         public int DurationInSeconds
         {
             get { return _durationInSeconds; }
-            set { _durationInSeconds = value; }
+            set
+            {
+                Validator.AssertOnPositiveValue(value, nameof(DurationInSeconds));
+                _durationInSeconds = value;
+            }
         }
     }
 }

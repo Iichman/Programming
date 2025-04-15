@@ -1,51 +1,49 @@
-using System;
+ï»¿using System;
 
 namespace Programming.Model
 {
     public class Rectangle
     {
+        private static int _allRectanglesCount;
         private double _length;
         private double _width;
-        private string _color;
 
-        public Rectangle(double length, double width, string color)
-        {
-            Length = length;
-            Width = width;
-            Color = color;
-        }
-
-        public Rectangle()
-        {
-            // Êîíñòðóêòîð áåç àðãóìåíòîâ
-        }
+        public int Id { get; }
+        public Point2D Center { get; set; }
+        public string Color { get; set; }
 
         public double Length
         {
-            get { return _length; }
+            get => _length;
             set
             {
-                if (value < 0)
-                    throw new ArgumentException("Length cannot be negative.");
-                _length = value;
+                _length = Validator.AssertOnPositiveValue(value, nameof(Length));
             }
         }
 
         public double Width
         {
-            get { return _width; }
+            get => _width;
             set
             {
-                if (value < 0)
-                    throw new ArgumentException("Width cannot be negative.");
-                _width = value;
+                _width = Validator.AssertOnPositiveValue(value, nameof(Width));
             }
         }
 
-        public string Color
+        public event EventHandler OnCenterChanged;
+
+        public Rectangle(double length, double width, string color)
         {
-            get { return _color; }
-            set { _color = value; }
+            Id = _allRectanglesCount++;
+            Length = length;
+            Width = width;
+            Color = color;
+            Center = new Point2D(width / 2, length / 2); // Ð¦ÐµÐ½Ñ‚Ñ€ Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ
+        }
+
+        public override string ToString()
+        {
+            return $"Rectangle {Id} (L={_length:F2}, W={_width:F2}, Center={Center})";
         }
     }
 }

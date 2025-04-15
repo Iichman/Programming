@@ -30,7 +30,11 @@ namespace Programming.Model
         public int FlightTimeInMinutes
         {
             get { return _flightTimeInMinutes; }
-            set { _flightTimeInMinutes = value; }
+            set
+            {
+                Validator.AssertOnPositiveValue(value, nameof(FlightTimeInMinutes));
+                _flightTimeInMinutes = value;
+            }
         }
     }
 }

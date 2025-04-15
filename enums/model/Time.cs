@@ -1,5 +1,3 @@
-using System;
-
 namespace Programming.Model
 {
     public class Time
@@ -22,8 +20,7 @@ namespace Programming.Model
             get { return _hours; }
             set
             {
-                if (value < 0 || value > 23)
-                    throw new ArgumentException("Hours must be between 0 and 23.");
+                Validator.AssertValueInRange(value, 0, 23, nameof(Hours));
                 _hours = value;
             }
         }
@@ -33,8 +30,7 @@ namespace Programming.Model
             get { return _minutes; }
             set
             {
-                if (value < 0 || value > 59)
-                    throw new ArgumentException("Minutes must be between 0 and 59.");
+                Validator.AssertValueInRange(value, 0, 59, nameof(Minutes));
                 _minutes = value;
             }
         }
@@ -44,8 +40,7 @@ namespace Programming.Model
             get { return _seconds; }
             set
             {
-                if (value < 0 || value > 59)
-                    throw new ArgumentException("Seconds must be between 0 and 59.");
+                Validator.AssertValueInRange(value, 0, 59, nameof(Seconds));
                 _seconds = value;
             }
         }

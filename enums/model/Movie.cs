@@ -1,5 +1,3 @@
-using System;
-
 namespace Programming.Model
 {
     public class Movie
@@ -30,7 +28,11 @@ namespace Programming.Model
         public int DurationInMinutes
         {
             get { return _durationInMinutes; }
-            set { _durationInMinutes = value; }
+            set
+            {
+                Validator.AssertOnPositiveValue(value, nameof(DurationInMinutes));
+                _durationInMinutes = value;
+            }
         }
 
         public int ReleaseYear
@@ -38,8 +40,7 @@ namespace Programming.Model
             get { return _releaseYear; }
             set
             {
-                if (value < 1900 || value > DateTime.Now.Year)
-                    throw new ArgumentException("Release year must be between 1900 and the current year.");
+                Validator.AssertValueInRange(value, 1900, DateTime.Now.Year, nameof(ReleaseYear));
                 _releaseYear = value;
             }
         }
@@ -55,8 +56,7 @@ namespace Programming.Model
             get { return _rating; }
             set
             {
-                if (value < 0 || value > 10)
-                    throw new ArgumentException("Rating must be between 0 and 10.");
+                Validator.AssertValueInRange(value, 0, 10, nameof(Rating));
                 _rating = value;
             }
         }
