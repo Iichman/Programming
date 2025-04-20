@@ -1,4 +1,3 @@
-
 namespace Programming.View
 {
     partial class MainForm
@@ -37,6 +36,13 @@ namespace Programming.View
             this.colorLabel = new System.Windows.Forms.Label();
             this.colorTextBox = new System.Windows.Forms.TextBox();
             this.findRectangleButton = new System.Windows.Forms.Button();
+            this.idLabel = new System.Windows.Forms.Label();
+            this.idTextBox = new System.Windows.Forms.TextBox();
+            this.centerLabel = new System.Windows.Forms.Label();
+            this.centerXLabel = new System.Windows.Forms.Label();
+            this.centerXTextBox = new System.Windows.Forms.TextBox();
+            this.centerYLabel = new System.Windows.Forms.Label();
+            this.centerYTextBox = new System.Windows.Forms.TextBox();
             this.moviesTabPage = new System.Windows.Forms.TabPage();
             this.moviesListBox = new System.Windows.Forms.ListBox();
             this.titleLabel = new System.Windows.Forms.Label();
@@ -50,6 +56,20 @@ namespace Programming.View
             this.ratingLabel = new System.Windows.Forms.Label();
             this.ratingTextBox = new System.Windows.Forms.TextBox();
             this.findMovieButton = new System.Windows.Forms.Button();
+            this.ringsTabPage = new System.Windows.Forms.TabPage();
+            this.ringsListBox = new System.Windows.Forms.ListBox();
+            this.outerRadiusLabel = new System.Windows.Forms.Label();
+            this.outerRadiusTextBox = new System.Windows.Forms.TextBox();
+            this.innerRadiusLabel = new System.Windows.Forms.Label();
+            this.innerRadiusTextBox = new System.Windows.Forms.TextBox();
+            this.ringCenterLabel = new System.Windows.Forms.Label();
+            this.ringCenterXLabel = new System.Windows.Forms.Label();
+            this.ringCenterXTextBox = new System.Windows.Forms.TextBox();
+            this.ringCenterYLabel = new System.Windows.Forms.Label();
+            this.ringCenterYTextBox = new System.Windows.Forms.TextBox();
+            this.findRingButton = new System.Windows.Forms.Button();
+            this.ringIdLabel = new System.Windows.Forms.Label();
+            this.ringIdTextBox = new System.Windows.Forms.TextBox();
             this.collisionTabPage = new System.Windows.Forms.TabPage();
             this.rectangle1Label = new System.Windows.Forms.Label();
             this.rectangle1ComboBox = new System.Windows.Forms.ComboBox();
@@ -57,19 +77,17 @@ namespace Programming.View
             this.rectangle2ComboBox = new System.Windows.Forms.ComboBox();
             this.checkCollisionButton = new System.Windows.Forms.Button();
             this.collisionResultLabel = new System.Windows.Forms.Label();
-            this.idLabel = new System.Windows.Forms.Label();
-            this.idTextBox = new System.Windows.Forms.TextBox();
-            this.centerLabel = new System.Windows.Forms.Label();
-            this.centerXLabel = new System.Windows.Forms.Label();
-            this.centerXTextBox = new System.Windows.Forms.TextBox();
-            this.centerYLabel = new System.Windows.Forms.Label();
-            this.centerYTextBox = new System.Windows.Forms.TextBox();
+            this.ring1Label = new System.Windows.Forms.Label();
+            this.ring1ComboBox = new System.Windows.Forms.ComboBox();
+            this.ring2Label = new System.Windows.Forms.Label();
+            this.ring2ComboBox = new System.Windows.Forms.ComboBox();
             this.tabControl.SuspendLayout();
             this.enumsTabPage.SuspendLayout();
             this.classesTabPage.SuspendLayout();
             this.innerTabControl.SuspendLayout();
             this.rectanglesTabPage.SuspendLayout();
             this.moviesTabPage.SuspendLayout();
+            this.ringsTabPage.SuspendLayout();
             this.collisionTabPage.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -79,10 +97,10 @@ namespace Programming.View
             this.tabControl.Controls.Add(this.classesTabPage);
             this.tabControl.Controls.Add(this.collisionTabPage);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl.Location = new System.Drawing.Point(5, 5);
+            this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(674, 401);
+            this.tabControl.Size = new System.Drawing.Size(684, 411);
             this.tabControl.TabIndex = 0;
             // 
             // enumsTabPage
@@ -98,7 +116,7 @@ namespace Programming.View
             this.enumsTabPage.Location = new System.Drawing.Point(4, 22);
             this.enumsTabPage.Name = "enumsTabPage";
             this.enumsTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.enumsTabPage.Size = new System.Drawing.Size(666, 375);
+            this.enumsTabPage.Size = new System.Drawing.Size(676, 385);
             this.enumsTabPage.TabIndex = 0;
             this.enumsTabPage.Text = "Enums";
             this.enumsTabPage.UseVisualStyleBackColor = true;
@@ -180,7 +198,7 @@ namespace Programming.View
             this.classesTabPage.Location = new System.Drawing.Point(4, 22);
             this.classesTabPage.Name = "classesTabPage";
             this.classesTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.classesTabPage.Size = new System.Drawing.Size(666, 375);
+            this.classesTabPage.Size = new System.Drawing.Size(676, 385);
             this.classesTabPage.TabIndex = 1;
             this.classesTabPage.Text = "Classes";
             this.classesTabPage.UseVisualStyleBackColor = true;
@@ -189,11 +207,12 @@ namespace Programming.View
             // 
             this.innerTabControl.Controls.Add(this.rectanglesTabPage);
             this.innerTabControl.Controls.Add(this.moviesTabPage);
+            this.innerTabControl.Controls.Add(this.ringsTabPage);
             this.innerTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.innerTabControl.Location = new System.Drawing.Point(3, 3);
             this.innerTabControl.Name = "innerTabControl";
             this.innerTabControl.SelectedIndex = 0;
-            this.innerTabControl.Size = new System.Drawing.Size(660, 369);
+            this.innerTabControl.Size = new System.Drawing.Size(670, 379);
             this.innerTabControl.TabIndex = 0;
             // 
             // rectanglesTabPage
@@ -216,7 +235,7 @@ namespace Programming.View
             this.rectanglesTabPage.Location = new System.Drawing.Point(4, 22);
             this.rectanglesTabPage.Name = "rectanglesTabPage";
             this.rectanglesTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.rectanglesTabPage.Size = new System.Drawing.Size(652, 343);
+            this.rectanglesTabPage.Size = new System.Drawing.Size(662, 353);
             this.rectanglesTabPage.TabIndex = 0;
             this.rectanglesTabPage.Text = "Rectangles";
             this.rectanglesTabPage.UseVisualStyleBackColor = true;
@@ -226,10 +245,9 @@ namespace Programming.View
             this.rectanglesListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)));
             this.rectanglesListBox.FormattingEnabled = true;
-            this.rectanglesListBox.ItemHeight = 12;
             this.rectanglesListBox.Location = new System.Drawing.Point(6, 6);
             this.rectanglesListBox.Name = "rectanglesListBox";
-            this.rectanglesListBox.Size = new System.Drawing.Size(180, 268);
+            this.rectanglesListBox.Size = new System.Drawing.Size(180, 329);
             this.rectanglesListBox.TabIndex = 0;
             // 
             // lengthLabel
@@ -289,6 +307,64 @@ namespace Programming.View
             this.findRectangleButton.Text = "Find";
             this.findRectangleButton.UseVisualStyleBackColor = true;
             // 
+            // idLabel
+            // 
+            this.idLabel.AutoSize = true;
+            this.idLabel.Location = new System.Drawing.Point(192, 140);
+            this.idLabel.Name = "idLabel";
+            this.idLabel.Size = new System.Drawing.Size(21, 13);
+            this.idLabel.TabIndex = 8;
+            this.idLabel.Text = "ID:";
+            // 
+            // idTextBox
+            // 
+            this.idTextBox.Location = new System.Drawing.Point(260, 137);
+            this.idTextBox.Name = "idTextBox";
+            this.idTextBox.ReadOnly = true;
+            this.idTextBox.Size = new System.Drawing.Size(60, 20);
+            this.idTextBox.TabIndex = 9;
+            // 
+            // centerLabel
+            // 
+            this.centerLabel.AutoSize = true;
+            this.centerLabel.Location = new System.Drawing.Point(192, 180);
+            this.centerLabel.Name = "centerLabel";
+            this.centerLabel.Size = new System.Drawing.Size(41, 13);
+            this.centerLabel.TabIndex = 10;
+            this.centerLabel.Text = "Center:";
+            // 
+            // centerXLabel
+            // 
+            this.centerXLabel.AutoSize = true;
+            this.centerXLabel.Location = new System.Drawing.Point(240, 180);
+            this.centerXLabel.Name = "centerXLabel";
+            this.centerXLabel.Size = new System.Drawing.Size(17, 13);
+            this.centerXLabel.TabIndex = 11;
+            this.centerXLabel.Text = "X:";
+            // 
+            // centerXTextBox
+            // 
+            this.centerXTextBox.Location = new System.Drawing.Point(260, 177);
+            this.centerXTextBox.Name = "centerXTextBox";
+            this.centerXTextBox.Size = new System.Drawing.Size(60, 20);
+            this.centerXTextBox.TabIndex = 12;
+            // 
+            // centerYLabel
+            // 
+            this.centerYLabel.AutoSize = true;
+            this.centerYLabel.Location = new System.Drawing.Point(330, 180);
+            this.centerYLabel.Name = "centerYLabel";
+            this.centerYLabel.Size = new System.Drawing.Size(17, 13);
+            this.centerYLabel.TabIndex = 13;
+            this.centerYLabel.Text = "Y:";
+            // 
+            // centerYTextBox
+            // 
+            this.centerYTextBox.Location = new System.Drawing.Point(350, 177);
+            this.centerYTextBox.Name = "centerYTextBox";
+            this.centerYTextBox.Size = new System.Drawing.Size(60, 20);
+            this.centerYTextBox.TabIndex = 14;
+            // 
             // moviesTabPage
             // 
             this.moviesTabPage.Controls.Add(this.moviesListBox);
@@ -306,7 +382,7 @@ namespace Programming.View
             this.moviesTabPage.Location = new System.Drawing.Point(4, 22);
             this.moviesTabPage.Name = "moviesTabPage";
             this.moviesTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.moviesTabPage.Size = new System.Drawing.Size(652, 343);
+            this.moviesTabPage.Size = new System.Drawing.Size(662, 353);
             this.moviesTabPage.TabIndex = 1;
             this.moviesTabPage.Text = "Movies";
             this.moviesTabPage.UseVisualStyleBackColor = true;
@@ -316,10 +392,9 @@ namespace Programming.View
             this.moviesListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)));
             this.moviesListBox.FormattingEnabled = true;
-            this.moviesListBox.ItemHeight = 12;
             this.moviesListBox.Location = new System.Drawing.Point(6, 6);
             this.moviesListBox.Name = "moviesListBox";
-            this.moviesListBox.Size = new System.Drawing.Size(180, 268);
+            this.moviesListBox.Size = new System.Drawing.Size(180, 329);
             this.moviesListBox.TabIndex = 0;
             // 
             // titleLabel
@@ -411,8 +486,144 @@ namespace Programming.View
             this.findMovieButton.Text = "Find";
             this.findMovieButton.UseVisualStyleBackColor = true;
             // 
+            // ringsTabPage
+            // 
+            this.ringsTabPage.Controls.Add(this.ringsListBox);
+            this.ringsTabPage.Controls.Add(this.outerRadiusLabel);
+            this.ringsTabPage.Controls.Add(this.outerRadiusTextBox);
+            this.ringsTabPage.Controls.Add(this.innerRadiusLabel);
+            this.ringsTabPage.Controls.Add(this.innerRadiusTextBox);
+            this.ringsTabPage.Controls.Add(this.ringCenterLabel);
+            this.ringsTabPage.Controls.Add(this.ringCenterXLabel);
+            this.ringsTabPage.Controls.Add(this.ringCenterXTextBox);
+            this.ringsTabPage.Controls.Add(this.ringCenterYLabel);
+            this.ringsTabPage.Controls.Add(this.ringCenterYTextBox);
+            this.ringsTabPage.Controls.Add(this.findRingButton);
+            this.ringsTabPage.Controls.Add(this.ringIdLabel);
+            this.ringsTabPage.Controls.Add(this.ringIdTextBox);
+            this.ringsTabPage.Location = new System.Drawing.Point(4, 22);
+            this.ringsTabPage.Name = "ringsTabPage";
+            this.ringsTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.ringsTabPage.Size = new System.Drawing.Size(662, 353);
+            this.ringsTabPage.TabIndex = 2;
+            this.ringsTabPage.Text = "Rings";
+            this.ringsTabPage.UseVisualStyleBackColor = true;
+            // 
+            // ringsListBox
+            // 
+            this.ringsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.ringsListBox.FormattingEnabled = true;
+            this.ringsListBox.Location = new System.Drawing.Point(6, 6);
+            this.ringsListBox.Name = "ringsListBox";
+            this.ringsListBox.Size = new System.Drawing.Size(180, 329);
+            this.ringsListBox.TabIndex = 0;
+            // 
+            // outerRadiusLabel
+            // 
+            this.outerRadiusLabel.AutoSize = true;
+            this.outerRadiusLabel.Location = new System.Drawing.Point(192, 20);
+            this.outerRadiusLabel.Name = "outerRadiusLabel";
+            this.outerRadiusLabel.Size = new System.Drawing.Size(72, 13);
+            this.outerRadiusLabel.TabIndex = 1;
+            this.outerRadiusLabel.Text = "Outer Radius:";
+            // 
+            // outerRadiusTextBox
+            // 
+            this.outerRadiusTextBox.Location = new System.Drawing.Point(270, 17);
+            this.outerRadiusTextBox.Name = "outerRadiusTextBox";
+            this.outerRadiusTextBox.Size = new System.Drawing.Size(120, 20);
+            this.outerRadiusTextBox.TabIndex = 2;
+            // 
+            // innerRadiusLabel
+            // 
+            this.innerRadiusLabel.AutoSize = true;
+            this.innerRadiusLabel.Location = new System.Drawing.Point(192, 60);
+            this.innerRadiusLabel.Name = "innerRadiusLabel";
+            this.innerRadiusLabel.Size = new System.Drawing.Size(70, 13);
+            this.innerRadiusLabel.TabIndex = 3;
+            this.innerRadiusLabel.Text = "Inner Radius:";
+            // 
+            // innerRadiusTextBox
+            // 
+            this.innerRadiusTextBox.Location = new System.Drawing.Point(270, 57);
+            this.innerRadiusTextBox.Name = "innerRadiusTextBox";
+            this.innerRadiusTextBox.Size = new System.Drawing.Size(120, 20);
+            this.innerRadiusTextBox.TabIndex = 4;
+            // 
+            // ringCenterLabel
+            // 
+            this.ringCenterLabel.AutoSize = true;
+            this.ringCenterLabel.Location = new System.Drawing.Point(192, 140);
+            this.ringCenterLabel.Name = "ringCenterLabel";
+            this.ringCenterLabel.Size = new System.Drawing.Size(41, 13);
+            this.ringCenterLabel.TabIndex = 5;
+            this.ringCenterLabel.Text = "Center:";
+            // 
+            // ringCenterXLabel
+            // 
+            this.ringCenterXLabel.AutoSize = true;
+            this.ringCenterXLabel.Location = new System.Drawing.Point(240, 140);
+            this.ringCenterXLabel.Name = "ringCenterXLabel";
+            this.ringCenterXLabel.Size = new System.Drawing.Size(17, 13);
+            this.ringCenterXLabel.TabIndex = 6;
+            this.ringCenterXLabel.Text = "X:";
+            // 
+            // ringCenterXTextBox
+            // 
+            this.ringCenterXTextBox.Location = new System.Drawing.Point(270, 137);
+            this.ringCenterXTextBox.Name = "ringCenterXTextBox";
+            this.ringCenterXTextBox.Size = new System.Drawing.Size(60, 20);
+            this.ringCenterXTextBox.TabIndex = 7;
+            // 
+            // ringCenterYLabel
+            // 
+            this.ringCenterYLabel.AutoSize = true;
+            this.ringCenterYLabel.Location = new System.Drawing.Point(340, 140);
+            this.ringCenterYLabel.Name = "ringCenterYLabel";
+            this.ringCenterYLabel.Size = new System.Drawing.Size(17, 13);
+            this.ringCenterYLabel.TabIndex = 8;
+            this.ringCenterYLabel.Text = "Y:";
+            // 
+            // ringCenterYTextBox
+            // 
+            this.ringCenterYTextBox.Location = new System.Drawing.Point(360, 137);
+            this.ringCenterYTextBox.Name = "ringCenterYTextBox";
+            this.ringCenterYTextBox.Size = new System.Drawing.Size(60, 20);
+            this.ringCenterYTextBox.TabIndex = 9;
+            // 
+            // findRingButton
+            // 
+            this.findRingButton.Location = new System.Drawing.Point(270, 220);
+            this.findRingButton.Name = "findRingButton";
+            this.findRingButton.Size = new System.Drawing.Size(120, 30);
+            this.findRingButton.TabIndex = 10;
+            this.findRingButton.Text = "Find";
+            this.findRingButton.UseVisualStyleBackColor = true;
+            // 
+            // ringIdLabel
+            // 
+            this.ringIdLabel.AutoSize = true;
+            this.ringIdLabel.Location = new System.Drawing.Point(192, 100);
+            this.ringIdLabel.Name = "ringIdLabel";
+            this.ringIdLabel.Size = new System.Drawing.Size(21, 13);
+            this.ringIdLabel.TabIndex = 11;
+            this.ringIdLabel.Text = "ID:";
+            // 
+            // ringIdTextBox
+            // 
+            this.ringIdTextBox.Location = new System.Drawing.Point(270, 97);
+            this.ringIdTextBox.Name = "ringIdTextBox";
+            this.ringIdTextBox.ReadOnly = true;
+            this.ringIdTextBox.Size = new System.Drawing.Size(60, 20);
+            this.ringIdTextBox.TabIndex = 12;
+            // 
             // collisionTabPage
             // 
+            this.collisionTabPage.Controls.Add(this.ring1Label);
+            this.collisionTabPage.Controls.Add(this.ring1ComboBox);
+            this.collisionTabPage.Controls.Add(this.ring2Label);
+            this.collisionTabPage.Controls.Add(this.ring2ComboBox);
             this.collisionTabPage.Controls.Add(this.rectangle1Label);
             this.collisionTabPage.Controls.Add(this.rectangle1ComboBox);
             this.collisionTabPage.Controls.Add(this.rectangle2Label);
@@ -422,7 +633,7 @@ namespace Programming.View
             this.collisionTabPage.Location = new System.Drawing.Point(4, 22);
             this.collisionTabPage.Name = "collisionTabPage";
             this.collisionTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.collisionTabPage.Size = new System.Drawing.Size(666, 375);
+            this.collisionTabPage.Size = new System.Drawing.Size(676, 385);
             this.collisionTabPage.TabIndex = 2;
             this.collisionTabPage.Text = "Collision";
             this.collisionTabPage.UseVisualStyleBackColor = true;
@@ -463,7 +674,7 @@ namespace Programming.View
             // 
             // checkCollisionButton
             // 
-            this.checkCollisionButton.Location = new System.Drawing.Point(100, 100);
+            this.checkCollisionButton.Location = new System.Drawing.Point(100, 180);
             this.checkCollisionButton.Name = "checkCollisionButton";
             this.checkCollisionButton.Size = new System.Drawing.Size(150, 30);
             this.checkCollisionButton.TabIndex = 4;
@@ -473,71 +684,45 @@ namespace Programming.View
             // collisionResultLabel
             // 
             this.collisionResultLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.collisionResultLabel.Location = new System.Drawing.Point(20, 150);
+            this.collisionResultLabel.Location = new System.Drawing.Point(20, 230);
             this.collisionResultLabel.Name = "collisionResultLabel";
             this.collisionResultLabel.Size = new System.Drawing.Size(230, 40);
             this.collisionResultLabel.TabIndex = 5;
             this.collisionResultLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // idLabel
+            // ring1Label
             // 
-            this.idLabel.AutoSize = true;
-            this.idLabel.Location = new System.Drawing.Point(192, 140);
-            this.idLabel.Name = "idLabel";
-            this.idLabel.Size = new System.Drawing.Size(21, 13);
-            this.idLabel.TabIndex = 8;
-            this.idLabel.Text = "ID:";
+            this.ring1Label.AutoSize = true;
+            this.ring1Label.Location = new System.Drawing.Point(20, 100);
+            this.ring1Label.Name = "ring1Label";
+            this.ring1Label.Size = new System.Drawing.Size(40, 13);
+            this.ring1Label.TabIndex = 6;
+            this.ring1Label.Text = "Ring 1:";
             // 
-            // idTextBox
+            // ring1ComboBox
             // 
-            this.idTextBox.Location = new System.Drawing.Point(260, 137);
-            this.idTextBox.Name = "idTextBox";
-            this.idTextBox.ReadOnly = true;
-            this.idTextBox.Size = new System.Drawing.Size(60, 20);
-            this.idTextBox.TabIndex = 9;
+            this.ring1ComboBox.FormattingEnabled = true;
+            this.ring1ComboBox.Location = new System.Drawing.Point(100, 97);
+            this.ring1ComboBox.Name = "ring1ComboBox";
+            this.ring1ComboBox.Size = new System.Drawing.Size(150, 21);
+            this.ring1ComboBox.TabIndex = 7;
             // 
-            // centerLabel
+            // ring2Label
             // 
-            this.centerLabel.AutoSize = true;
-            this.centerLabel.Location = new System.Drawing.Point(192, 180);
-            this.centerLabel.Name = "centerLabel";
-            this.centerLabel.Size = new System.Drawing.Size(41, 13);
-            this.centerLabel.TabIndex = 10;
-            this.centerLabel.Text = "Center:";
+            this.ring2Label.AutoSize = true;
+            this.ring2Label.Location = new System.Drawing.Point(20, 140);
+            this.ring2Label.Name = "ring2Label";
+            this.ring2Label.Size = new System.Drawing.Size(40, 13);
+            this.ring2Label.TabIndex = 8;
+            this.ring2Label.Text = "Ring 2:";
             // 
-            // centerXLabel
+            // ring2ComboBox
             // 
-            this.centerXLabel.AutoSize = true;
-            this.centerXLabel.Location = new System.Drawing.Point(240, 180);
-            this.centerXLabel.Name = "centerXLabel";
-            this.centerXLabel.Size = new System.Drawing.Size(17, 13);
-            this.centerXLabel.TabIndex = 11;
-            this.centerXLabel.Text = "X:";
-            // 
-            // centerXTextBox
-            // 
-            this.centerXTextBox.Location = new System.Drawing.Point(260, 177);
-            this.centerXTextBox.Name = "centerXTextBox";
-            
-            this.centerXTextBox.Size = new System.Drawing.Size(60, 20);
-            this.centerXTextBox.TabIndex = 12;
-            // 
-            // centerYLabel
-            // 
-            this.centerYLabel.AutoSize = true;
-            this.centerYLabel.Location = new System.Drawing.Point(330, 180);
-            this.centerYLabel.Name = "centerYLabel";
-            this.centerYLabel.Size = new System.Drawing.Size(17, 13);
-            this.centerYLabel.TabIndex = 13;
-            this.centerYLabel.Text = "Y:";
-            // 
-            // centerYTextBox
-            // 
-            this.centerYTextBox.Location = new System.Drawing.Point(350, 177);
-            this.centerYTextBox.Name = "centerYTextBox";
-
-            this.centerYTextBox.Size = new System.Drawing.Size(60, 20);
-            this.centerYTextBox.TabIndex = 14;
+            this.ring2ComboBox.FormattingEnabled = true;
+            this.ring2ComboBox.Location = new System.Drawing.Point(100, 137);
+            this.ring2ComboBox.Name = "ring2ComboBox";
+            this.ring2ComboBox.Size = new System.Drawing.Size(150, 21);
+            this.ring2ComboBox.TabIndex = 9;
             // 
             // MainForm
             // 
@@ -545,9 +730,8 @@ namespace Programming.View
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(684, 411);
             this.Controls.Add(this.tabControl);
-            this.MinimumSize = new System.Drawing.Size(600, 400);
+            this.MinimumSize = new System.Drawing.Size(700, 450);
             this.Name = "MainForm";
-            this.Padding = new System.Windows.Forms.Padding(5);
             this.Text = "Programming Demo";
             this.tabControl.ResumeLayout(false);
             this.enumsTabPage.ResumeLayout(false);
@@ -558,6 +742,8 @@ namespace Programming.View
             this.rectanglesTabPage.PerformLayout();
             this.moviesTabPage.ResumeLayout(false);
             this.moviesTabPage.PerformLayout();
+            this.ringsTabPage.ResumeLayout(false);
+            this.ringsTabPage.PerformLayout();
             this.collisionTabPage.ResumeLayout(false);
             this.collisionTabPage.PerformLayout();
             this.ResumeLayout(false);
@@ -585,6 +771,13 @@ namespace Programming.View
         private System.Windows.Forms.Label colorLabel;
         private System.Windows.Forms.TextBox colorTextBox;
         private System.Windows.Forms.Button findRectangleButton;
+        private System.Windows.Forms.Label idLabel;
+        private System.Windows.Forms.TextBox idTextBox;
+        private System.Windows.Forms.Label centerLabel;
+        private System.Windows.Forms.Label centerXLabel;
+        private System.Windows.Forms.TextBox centerXTextBox;
+        private System.Windows.Forms.Label centerYLabel;
+        private System.Windows.Forms.TextBox centerYTextBox;
         private System.Windows.Forms.TabPage moviesTabPage;
         private System.Windows.Forms.ListBox moviesListBox;
         private System.Windows.Forms.Label titleLabel;
@@ -598,13 +791,20 @@ namespace Programming.View
         private System.Windows.Forms.Label ratingLabel;
         private System.Windows.Forms.TextBox ratingTextBox;
         private System.Windows.Forms.Button findMovieButton;
-        private System.Windows.Forms.Label idLabel;
-        private System.Windows.Forms.TextBox idTextBox;
-        private System.Windows.Forms.Label centerLabel;
-        private System.Windows.Forms.Label centerXLabel;
-        private System.Windows.Forms.TextBox centerXTextBox;
-        private System.Windows.Forms.Label centerYLabel;
-        private System.Windows.Forms.TextBox centerYTextBox;
+        private System.Windows.Forms.TabPage ringsTabPage;
+        private System.Windows.Forms.ListBox ringsListBox;
+        private System.Windows.Forms.Label outerRadiusLabel;
+        private System.Windows.Forms.TextBox outerRadiusTextBox;
+        private System.Windows.Forms.Label innerRadiusLabel;
+        private System.Windows.Forms.TextBox innerRadiusTextBox;
+        private System.Windows.Forms.Label ringCenterLabel;
+        private System.Windows.Forms.Label ringCenterXLabel;
+        private System.Windows.Forms.TextBox ringCenterXTextBox;
+        private System.Windows.Forms.Label ringCenterYLabel;
+        private System.Windows.Forms.TextBox ringCenterYTextBox;
+        private System.Windows.Forms.Button findRingButton;
+        private System.Windows.Forms.Label ringIdLabel;
+        private System.Windows.Forms.TextBox ringIdTextBox;
         private System.Windows.Forms.TabPage collisionTabPage;
         private System.Windows.Forms.Label rectangle1Label;
         private System.Windows.Forms.ComboBox rectangle1ComboBox;
@@ -612,5 +812,9 @@ namespace Programming.View
         private System.Windows.Forms.ComboBox rectangle2ComboBox;
         private System.Windows.Forms.Button checkCollisionButton;
         private System.Windows.Forms.Label collisionResultLabel;
+        private System.Windows.Forms.Label ring1Label;
+        private System.Windows.Forms.ComboBox ring1ComboBox;
+        private System.Windows.Forms.Label ring2Label;
+        private System.Windows.Forms.ComboBox ring2ComboBox;
     }
 }

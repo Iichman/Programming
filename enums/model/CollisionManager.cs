@@ -17,5 +17,13 @@ namespace Programming.Model
 
             return dx < sumHalfWidths && dy < sumHalfHeights;
         }
+        public static bool IsCollision(Ring ring1, Ring ring2)
+        {
+            double dx = ring1.Center.X - ring2.Center.X;
+            double dy = ring1.Center.Y - ring2.Center.Y;
+            double distance = Math.Sqrt(dx * dx + dy * dy);
+
+            return distance < (ring1.OuterRadius + ring2.OuterRadius);
+        }
     }
 }
