@@ -8,8 +8,11 @@ namespace Programming.Model
         private string _genre;
         private double _rating;
 
-        public Movie(string title, int durationInMinutes, int releaseYear, string genre, double rating)
+        public int Id { get; }
+
+        public Movie(int id, string title, int durationInMinutes, int releaseYear, string genre, double rating)
         {
+            Id = id;
             Title = title;
             DurationInMinutes = durationInMinutes;
             ReleaseYear = releaseYear;
@@ -17,17 +20,15 @@ namespace Programming.Model
             Rating = rating;
         }
 
-        public Movie() { }
-
         public string Title
         {
-            get { return _title; }
-            set { _title = value; }
+            get => _title;
+            set => _title = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public int DurationInMinutes
         {
-            get { return _durationInMinutes; }
+            get => _durationInMinutes;
             set
             {
                 Validator.AssertOnPositiveValue(value, nameof(DurationInMinutes));
@@ -37,7 +38,7 @@ namespace Programming.Model
 
         public int ReleaseYear
         {
-            get { return _releaseYear; }
+            get => _releaseYear;
             set
             {
                 Validator.AssertValueInRange(value, 1900, DateTime.Now.Year, nameof(ReleaseYear));
@@ -47,13 +48,13 @@ namespace Programming.Model
 
         public string Genre
         {
-            get { return _genre; }
-            set { _genre = value; }
+            get => _genre;
+            set => _genre = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public double Rating
         {
-            get { return _rating; }
+            get => _rating;
             set
             {
                 Validator.AssertValueInRange(value, 0, 10, nameof(Rating));

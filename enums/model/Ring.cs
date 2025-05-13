@@ -6,11 +6,14 @@ namespace Programming.Model
         private double _innerRadius;
         private Point2D _center;
 
-        public Ring(double outerRadius, double innerRadius, Point2D center)
+        public int Id { get; }
+
+        public Ring(int id, double outerRadius, double innerRadius, Point2D center)
         {
+            Id = id;
             OuterRadius = outerRadius;
             InnerRadius = innerRadius;
-            Center = center;
+            Center = center ?? throw new ArgumentNullException(nameof(center));
         }
 
         public double OuterRadius
@@ -44,7 +47,7 @@ namespace Programming.Model
         public Point2D Center
         {
             get => _center;
-            set => _center = value ?? throw new ArgumentNullException(nameof(Center));
+            set => _center = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public double Area => Math.PI * (Math.Pow(OuterRadius, 2) - Math.Pow(InnerRadius, 2));

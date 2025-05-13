@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Programming.Model
 {
@@ -30,20 +32,31 @@ namespace Programming.Model
             }
         }
 
-        public event EventHandler OnCenterChanged;
-
-        public Rectangle(double length, double width, string color)
+        public Rectangle(double length, double width, string color, Point2D center)
         {
             Id = _allRectanglesCount++;
             Length = length;
             Width = width;
             Color = color;
-            Center = new Point2D(width / 2, length / 2); // Центр по умолчанию
+            Center = center;
+        }
+
+        public Panel ToPanel()
+        {
+            return new Panel
+            {
+                Width = (int)Width,
+                Height = (int)Length,
+                Location = new Point((int)(Center.X - Width / 2), (int)(Center.Y - Length / 2)),
+                BackColor = System.Drawing.Color.FromArgb(127, 127, 255, 127),
+                BorderStyle = BorderStyle.FixedSingle,
+                Tag = this
+            };
         }
 
         public override string ToString()
         {
-            return $"Rectangle {Id} (L={_length:F2}, W={_width:F2}, Center={Center})";
+            return $"Rectangle {Id} (X={Center.X:F1}, Y={Center.Y:F1}, W={Width:F1}, H={Length:F1})";
         }
     }
 }
