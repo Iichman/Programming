@@ -24,6 +24,14 @@ namespace Programming.Model
             return value;
         }
 
+        public static void AssertStringNotNullOrEmpty(string value, string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException($"{propertyName} cannot be null or empty");
+            }
+        }
+
         /// <summary>
         /// Проверяет, что вещественное число является положительным.
         /// </summary>
