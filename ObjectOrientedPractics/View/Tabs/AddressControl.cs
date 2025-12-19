@@ -7,17 +7,20 @@ using ObjectOrientedPractics.Services;
 namespace ObjectOrientedPractics.View.Controls
 {
     /// <summary>
-    /// Элемент управления для ввода и отображения адреса.
+    /// Элемент управления для редактирования адреса.
     /// </summary>
     public partial class AddressControl : UserControl
     {
-        /// <summary>
-        /// Адрес, отображаемый в элементе управления.
-        /// </summary>
         private Address _address = new Address();
+        private bool _isUpdatingFields = false;
 
         /// <summary>
-        /// Создает экземпляр класса <see cref="AddressControl"/>.
+        /// Событие изменения адреса.
+        /// </summary>
+        public event EventHandler AddressChanged;
+
+        /// <summary>
+        /// Создает новый экземпляр класса <see cref="AddressControl"/>.
         /// </summary>
         public AddressControl()
         {
@@ -25,139 +28,410 @@ namespace ObjectOrientedPractics.View.Controls
         }
 
         /// <summary>
-        /// Возвращает или задает адрес, отображаемый в элементе управления.
+        /// Адрес для редактирования.
         /// </summary>
         public Address Address
         {
-            get { return _address; }
+            get => _address;
             set
             {
+                if (_address != null)
+                {
+                    _address.AddressChanged -= Address_AddressChanged;
+                }
+
                 _address = value ?? new Address();
-                UpdateAddressFields();
+
+                _address.AddressChanged += Address_AddressChanged;
+
+                UpdateFields();
+                OnAddressChanged();
             }
         }
 
         /// <summary>
-        /// Обновляет поля ввода значениями из объекта адреса.
+        /// Обработчик события изменения адреса.
         /// </summary>
-        private void UpdateAddressFields()
+        private void Address_AddressChanged(object sender, EventArgs e)
         {
-            if (_address != null)
+            UpdateFields();
+        }
+
+        /// <summary>
+        /// Вызывает событие <see cref="AddressChanged"/>.
+        /// </summary>
+        protected virtual void OnAddressChanged()
+        {
+            AddressChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Обновляет поля ввода данными из адреса.
+        /// </summary>
+        private void UpdateFields()
+        {
+            if (_address == null || _isUpdatingFields) return;
+
+            _isUpdatingFields = true;
+            try
             {
-                indexTextBox.Text = _address.Index.ToString();
+                postIndexTextBox.Text = _address.PostIndex;
                 countryTextBox.Text = _address.Country;
                 cityTextBox.Text = _address.City;
                 streetTextBox.Text = _address.Street;
                 buildingTextBox.Text = _address.Building;
                 apartmentTextBox.Text = _address.Apartment;
+
+                ClearErrorHighlights();
+            }
+            finally
+            {
+                _isUpdatingFields = false;
             }
         }
 
         /// <summary>
-        /// Обработчик события изменения текста в поле индекса.
+        /// Очищает все поля ввода.
         /// </summary>
-        private void IndexTextBox_TextChanged(object sender, EventArgs e)
+        public void Clear()
+        {
+            postIndexTextBox.Clear();
+            countryTextBox.Clear();
+            cityTextBox.Clear();
+            streetTextBox.Clear();
+            buildingTextBox.Clear();
+            apartmentTextBox.Clear();
+            ClearErrorHighlights();
+        }
+
+        /// <summary>
+        /// Очищает подсветку ошибок.
+        /// </summary>
+        private void ClearErrorHighlights()
+        {
+            postIndexTextBox.BackColor = Color.White;
+            countryTextBox.BackColor = Color.White;
+            cityTextBox.BackColor = Color.White;
+            streetTextBox.BackColor = Color.White;
+            buildingTextBox.BackColor = Color.White;
+            apartmentTextBox.BackColor = Color.White;
+
+            ClearErrors();
+        }
+
+        /// <summary>
+        /// Очищает все сообщения об ошибках в ErrorProvider.
+        /// </summary>
+        private void ClearErrors()
+        {
+            postIndexErrorProvider.Clear();
+            countryErrorProvider.Clear();
+            cityErrorProvider.Clear();
+            streetErrorProvider.Clear();
+            buildingErrorProvider.Clear();
+            apartmentErrorProvider.Clear();
+        }
+
+        /// <summary>
+        /// Валидирует все поля адреса.
+        /// </summary>
+        /// <returns>true, если все поля валидны; иначе false.</returns>
+        public bool ValidateAddress()
+        {
+            bool isValid = true;
+            if (!ValidatePostIndex())
+                isValid = false;
+
+            if (!ValidateCountry())
+                isValid = false;
+
+            if (!ValidateCity())
+                isValid = false;
+
+            if (!ValidateStreet())
+                isValid = false;
+
+            if (!ValidateBuilding())
+                isValid = false;
+
+            if (!ValidateApartment())
+                isValid = false;
+
+            return isValid;
+        }
+
+        /// <summary>
+        /// Валидирует почтовый индекс.
+        /// </summary>
+        /// <returns>true, если индекс валиден; иначе false.</returns>
+        private bool ValidatePostIndex()
         {
             try
             {
-                if (int.TryParse(indexTextBox.Text, out int index))
-                {
-                    _address.Index = index;
-                    indexTextBox.BackColor = Color.White;
-                }
-                else if (string.IsNullOrEmpty(indexTextBox.Text))
-                {
-                    indexTextBox.BackColor = Color.White;
-                }
-                else
-                {
-                    indexTextBox.BackColor = Color.LightPink;
-                }
+                ValueValidator.AssertPostIndex(postIndexTextBox.Text, "Почтовый индекс");
+                postIndexTextBox.BackColor = Color.White;
+                postIndexErrorProvider.Clear();
+                return true;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                indexTextBox.BackColor = Color.LightPink;
+                postIndexTextBox.BackColor = Color.LightPink;
+                postIndexErrorProvider.SetError(postIndexTextBox, ex.Message);
+                return false;
             }
         }
 
         /// <summary>
-        /// Обработчик события изменения текста в поле страны.
+        /// Валидирует страну.
         /// </summary>
-        private void CountryTextBox_TextChanged(object sender, EventArgs e)
+        /// <returns>true, если страна валидна; иначе false.</returns>
+        private bool ValidateCountry()
         {
             try
             {
-                _address.Country = countryTextBox.Text;
+                ValueValidator.AssertStringNotNullOrEmpty(countryTextBox.Text, 50, "Страна");
+                ValueValidator.AssertStringContainsOnlyLetters(countryTextBox.Text, "Страна");
                 countryTextBox.BackColor = Color.White;
+                countryErrorProvider.Clear();
+                return true;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
                 countryTextBox.BackColor = Color.LightPink;
+                countryErrorProvider.SetError(countryTextBox, ex.Message);
+                return false;
             }
         }
 
         /// <summary>
-        /// Обработчик события изменения текста в поле города.
+        /// Валидирует город.
         /// </summary>
-        private void CityTextBox_TextChanged(object sender, EventArgs e)
+        /// <returns>true, если город валиден; иначе false.</returns>
+        private bool ValidateCity()
         {
             try
             {
-                _address.City = cityTextBox.Text;
+                ValueValidator.AssertStringNotNullOrEmpty(cityTextBox.Text, 50, "Город");
+                ValueValidator.AssertStringContainsOnlyLetters(cityTextBox.Text, "Город");
                 cityTextBox.BackColor = Color.White;
+                cityErrorProvider.Clear();
+                return true;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
                 cityTextBox.BackColor = Color.LightPink;
+                cityErrorProvider.SetError(cityTextBox, ex.Message);
+                return false;
             }
         }
 
         /// <summary>
-        /// Обработчик события изменения текста в поле улицы.
+        /// Валидирует улицу.
         /// </summary>
-        private void StreetTextBox_TextChanged(object sender, EventArgs e)
+        /// <returns>true, если улица валидна; иначе false.</returns>
+        private bool ValidateStreet()
         {
             try
             {
-                _address.Street = streetTextBox.Text;
+                ValueValidator.AssertStringNotNullOrEmpty(streetTextBox.Text, 100, "Улица");
                 streetTextBox.BackColor = Color.White;
+                streetErrorProvider.Clear();
+                return true;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
                 streetTextBox.BackColor = Color.LightPink;
+                streetErrorProvider.SetError(streetTextBox, ex.Message);
+                return false;
             }
         }
 
         /// <summary>
-        /// Обработчик события изменения текста в поле номера дома.
+        /// Валидирует номер дома.
         /// </summary>
-        private void BuildingTextBox_TextChanged(object sender, EventArgs e)
+        /// <returns>true, если номер дома валиден; иначе false.</returns>
+        private bool ValidateBuilding()
         {
             try
             {
-                _address.Building = buildingTextBox.Text;
+                ValueValidator.AssertStringNotNullOrEmpty(buildingTextBox.Text, 10, "Номер дома");
                 buildingTextBox.BackColor = Color.White;
+                buildingErrorProvider.Clear();
+                return true;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
                 buildingTextBox.BackColor = Color.LightPink;
+                buildingErrorProvider.SetError(buildingTextBox, ex.Message);
+                return false;
             }
         }
 
         /// <summary>
-        /// Обработчик события изменения текста в поля номера квартиры.
+        /// Валидирует номер квартиры.
         /// </summary>
-        private void ApartmentTextBox_TextChanged(object sender, EventArgs e)
+        /// <returns>true, если номер квартиры валиден; иначе false.</returns>
+        private bool ValidateApartment()
         {
             try
             {
-                _address.Apartment = apartmentTextBox.Text;
+                if (!string.IsNullOrWhiteSpace(apartmentTextBox.Text))
+                {
+                    ValueValidator.AssertStringOnLength(apartmentTextBox.Text, 10, "Номер квартиры");
+                }
                 apartmentTextBox.BackColor = Color.White;
+                apartmentErrorProvider.Clear();
+                return true;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
                 apartmentTextBox.BackColor = Color.LightPink;
+                apartmentErrorProvider.SetError(apartmentTextBox, ex.Message);
+                return false;
             }
         }
+
+        #region Обработчики событий TextChanged
+
+        private void PostIndexTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_address != null && !_isUpdatingFields)
+            {
+                // Валидируем при каждом изменении
+                if (ValidatePostIndex())
+                {
+                    try
+                    {
+                        _address.PostIndex = postIndexTextBox.Text;
+                        OnAddressChanged();
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+            }
+        }
+
+        private void PostIndexTextBox_Leave(object sender, EventArgs e)
+        {
+            ValidatePostIndex();
+        }
+
+        private void CountryTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_address != null && !_isUpdatingFields)
+            {
+                if (ValidateCountry())
+                {
+                    try
+                    {
+                        _address.Country = countryTextBox.Text;
+                        OnAddressChanged();
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+            }
+        }
+
+        private void CountryTextBox_Leave(object sender, EventArgs e)
+        {
+            ValidateCountry();
+        }
+
+        private void CityTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_address != null && !_isUpdatingFields)
+            {
+                if (ValidateCity())
+                {
+                    try
+                    {
+                        _address.City = cityTextBox.Text;
+                        OnAddressChanged();
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+            }
+        }
+
+        private void CityTextBox_Leave(object sender, EventArgs e)
+        {
+            ValidateCity();
+        }
+
+        private void StreetTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_address != null && !_isUpdatingFields)
+            {
+                if (ValidateStreet())
+                {
+                    try
+                    {
+                        _address.Street = streetTextBox.Text;
+                        OnAddressChanged();
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+            }
+        }
+
+        private void StreetTextBox_Leave(object sender, EventArgs e)
+        {
+            ValidateStreet();
+        }
+
+        private void BuildingTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_address != null && !_isUpdatingFields)
+            {
+                if (ValidateBuilding())
+                {
+                    try
+                    {
+                        _address.Building = buildingTextBox.Text;
+                        OnAddressChanged();
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+            }
+        }
+
+        private void BuildingTextBox_Leave(object sender, EventArgs e)
+        {
+            ValidateBuilding();
+        }
+
+        private void ApartmentTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_address != null && !_isUpdatingFields)
+            {
+                if (ValidateApartment())
+                {
+                    try
+                    {
+                        _address.Apartment = apartmentTextBox.Text;
+                        OnAddressChanged();
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+            }
+        }
+
+        private void ApartmentTextBox_Leave(object sender, EventArgs e)
+        {
+            ValidateApartment();
+        }
+
+        #endregion
     }
 }

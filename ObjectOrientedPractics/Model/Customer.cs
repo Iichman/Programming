@@ -1,81 +1,129 @@
+п»їusing ObjectOrientedPractics.Model.Discounts;
 using ObjectOrientedPractics.Services;
+using System;
 using System.Collections.Generic;
 
 namespace ObjectOrientedPractics.Model
 {
     /// <summary>
-    /// Представляет покупателя.
+    /// РџСЂРµРґСЃС‚Р°РІР»СЏРµС‚ РїРѕРєСѓРїР°С‚РµР»СЏ.
     /// </summary>
     public class Customer
     {
-        private readonly int _id;
-        private string _fullname = "";
-        private Address _address = new Address();
+        private int _id;
+        private string _fullName;
+        private Address _address;
         private Cart _cart;
         private List<Order> _orders;
+        private List<IDiscount> _discounts;
+        private bool _isPriority;
 
         /// <summary>
-        /// Создает экземпляр класса <see cref="Customer"/>.
-        /// </summary>
-        public Customer()
-        {
-            _id = IdGenerator.GetNextId();
-            _cart = new Cart(); // Композиция: корзина создается вместе с покупателем
-            _orders = new List<Order>();
-        }
-
-        /// <summary>
-        /// Создает экземпляр класса <see cref="Customer"/>.
-        /// </summary>
-        /// <param name="fullname">Полное имя.</param>
-        /// <param name="address">Адрес доставки.</param>
-        public Customer(string fullname, Address address) : this()
-        {
-            Fullname = fullname;
-            Address = address;
-        }
-
-        /// <summary>
-        /// Возвращает идентификатор покупателя.
+        /// РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕРєСѓРїР°С‚РµР»СЏ.
         /// </summary>
         public int Id
         {
-            get { return _id; }
+            get => _id;
+            private set => _id = value;
         }
 
         /// <summary>
-        /// Возвращает или задает полное имя покупателя.
+        /// РџРѕР»РЅРѕРµ РёРјСЏ РїРѕРєСѓРїР°С‚РµР»СЏ.
         /// </summary>
-        public string Fullname
+        public string FullName
         {
-            get { return _fullname; }
-            set { _fullname = value; }
+            get => _fullName;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new ArgumentException("РРјСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј");
+                if (value.Length > 200)
+                    throw new ArgumentException("РРјСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РґР»РёРЅРЅРµРµ 200 СЃРёРјРІРѕР»РѕРІ");
+                _fullName = value;
+            }
         }
 
         /// <summary>
-        /// Возвращает или задает адрес доставки покупателя.
+        /// РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё РїРѕРєСѓРїР°С‚РµР»СЏ.
         /// </summary>
         public Address Address
         {
-            get { return _address; }
-            set { _address = value ?? new Address(); }
+            get => _address;
+            set => _address = value;
         }
 
         /// <summary>
-        /// Возвращает корзину покупателя.
+        /// РљРѕСЂР·РёРЅР° РїРѕРєСѓРїР°С‚РµР»СЏ.
         /// </summary>
         public Cart Cart
         {
-            get { return _cart; }
+            get => _cart;
+            set => _cart = value;
         }
 
         /// <summary>
-        /// Возвращает или задает список заказов покупателя.
+        /// РЎРїРёСЃРѕРє Р·Р°РєР°Р·РѕРІ РїРѕРєСѓРїР°С‚РµР»СЏ.
         /// </summary>
         public List<Order> Orders
         {
-            get { return _orders; }
-            set { _orders = value ?? new List<Order>(); }
+            get => _orders;
+            set => _orders = value;
+        }
+
+        /// <summary>
+        /// РЎРїРёСЃРѕРє СЃРєРёРґРѕРє РїРѕРєСѓРїР°С‚РµР»СЏ.
+        /// </summary>
+        public List<IDiscount> Discounts
+        {
+            get => _discounts;
+            set => _discounts = value;
+        }
+
+        /// <summary>
+        /// РџСЂРёРѕСЂРёС‚РµС‚РЅС‹Р№ РїРѕРєСѓРїР°С‚РµР»СЊ.
+        /// </summary>
+        public bool IsPriority
+        {
+            get => _isPriority;
+            set => _isPriority = value;
+        }
+
+        /// <summary>
+        /// РЎРѕР·РґР°РµС‚ РЅРѕРІРѕРіРѕ РїРѕРєСѓРїР°С‚РµР»СЏ.
+        /// </summary>
+        public Customer()
+        {
+            Id = IdGenerator.GetNextCustomerId();
+            FullName = "РќРѕРІС‹Р№ РїРѕРєСѓРїР°С‚РµР»СЊ";
+            Address = new Address();
+            Cart = new Cart();
+            Orders = new List<Order>();
+            Discounts = new List<IDiscount>();
+            Discounts.Add(new PointsDiscount());
+            IsPriority = false;
+        }
+
+        /// <summary>
+        /// РЎРѕР·РґР°РµС‚ РїРѕРєСѓРїР°С‚РµР»СЏ СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё.
+        /// </summary>
+        public Customer(string fullName, Address address)
+        {
+            Id = IdGenerator.GetNextCustomerId();
+            FullName = fullName;
+            Address = address;
+            Cart = new Cart();
+            Orders = new List<Order>();
+            Discounts = new List<IDiscount>();
+            Discounts.Add(new PointsDiscount());
+            IsPriority = false;
+        }
+
+        /// <summary>
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєРѕРІРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РїРѕРєСѓРїР°С‚РµР»СЏ.
+        /// </summary>
+        public override string ToString()
+        {
+            return $"{FullName} (ID: {Id})";
         }
     }
 }

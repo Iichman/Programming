@@ -3,82 +3,154 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using ObjectOrientedPractics.Model;
+using ObjectOrientedPractics.Model.Enums;
 using ObjectOrientedPractics.Services;
 
 namespace ObjectOrientedPractics.View.Tabs
 {
     /// <summary>
-    /// Tab для управления товарами.
+    /// Вкладка для работы с товарами.
     /// </summary>
     public partial class ItemsTab : UserControl
     {
-        /// <summary>
-        /// Список товаров.
-        /// </summary>
         private List<Item> _items = new List<Item>();
+        private List<Item> _displayedItems = new List<Item>();
+        private Item _currentItem;
+        private bool _isUpdating = false;
 
         /// <summary>
-        /// Текущий выбранный товар.
+        /// Событие изменения товаров.
         /// </summary>
-        private Item? _currentItem;
+        public event EventHandler ItemsChanged;
 
         /// <summary>
-        /// Создает экземпляр класса <see cref="ItemsTab"/>.
+        /// Создает новый экземпляр класса <see cref="ItemsTab"/>.
         /// </summary>
         public ItemsTab()
         {
             InitializeComponent();
-
-            // Инициализация ComboBox категорий
-            categoryComboBox.DataSource = Enum.GetValues(typeof(Category));
+            InitializeAdditionalControls();
+            LoadSampleData();
         }
 
         /// <summary>
-        /// Возвращает или задает список товаров.
+        /// Инициализирует дополнительные элементы управления.
         /// </summary>
-        public List<Item> Items
+        private void InitializeAdditionalControls()
         {
-            get { return _items; }
-            set
+            categoryComboBox.DataSource = Enum.GetValues(typeof(Category));
+
+            sortComboBox.Items.AddRange(new string[] { "По цене (возр.)", "По цене (убыв.)" });
+            sortComboBox.SelectedIndex = 0;
+
+            itemsListBox.SelectionMode = SelectionMode.One;
+
+            removeButton.Enabled = false;
+
+            UpdateDisplayedItems();
+        }
+
+        /// <summary>
+        /// Загружает тестовые данные.
+        /// </summary>
+        private void LoadSampleData()
+        {
+            try
             {
-                _items = value ?? new List<Item>();
+                _items.Add(new Item("Ноутбук", "Игровой ноутбук", 85000, Category.Electronics));
+                _items.Add(new Item("Смартфон", "Флагманский смартфон", 65000, Category.Electronics));
+                _items.Add(new Item("Книга", "Программирование на C#", 1500, Category.Books));
+                _items.Add(new Item("Футболка", "Хлопковая футболка", 1200, Category.Clothing));
+                _items.Add(new Item("Кофе", "Арабика 1 кг", 2500, Category.Food));
+                _items.Add(new Item("Стул", "Офисный стул", 5000, Category.Furniture));
+
+                UpdateDisplayedItems();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке тестовых данных: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Обновляет отображаемые товары с учетом фильтрации и сортировки.
+        /// </summary>
+        private void UpdateDisplayedItems()
+        {
+            if (_isUpdating) return;
+            _isUpdating = true;
+
+            try
+            {
+                string searchText = searchTextBox.Text.Trim();
+                List<Item> filteredItems;
+
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    filteredItems = _items.FindAll(item =>
+                        item.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        item.Info.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+                else
+                {
+                    filteredItems = new List<Item>(_items);
+                }
+
+                switch (sortComboBox.SelectedIndex)
+                {
+                    case 0: 
+                        filteredItems.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.Ordinal));
+                        break;
+                    case 1: 
+                        filteredItems.Sort((x, y) => x.Cost.CompareTo(y.Cost));
+                        break;
+                    case 2: 
+                        filteredItems.Sort((x, y) => y.Cost.CompareTo(x.Cost));
+                        break;
+                }
+
+                _displayedItems = filteredItems;
                 UpdateListBox();
             }
-        }
-
-        /// <summary>
-        /// Генерирует следующий ID для товара.
-        /// </summary>
-        /// <returns>Следующий ID.</returns>
-        private int GetNextId()
-        {
-            if (_items.Count == 0)
-                return 1;
-
-            int maxId = 0;
-            foreach (var item in _items)
+            finally
             {
-                if (item.Id > maxId)
-                    maxId = item.Id;
+                _isUpdating = false;
             }
-            return maxId + 1;
         }
 
         /// <summary>
-        /// Обновляет список товаров в ListBox.
+        /// Обновляет ListBox с товарами.
         /// </summary>
         private void UpdateListBox()
         {
+            itemsListBox.BeginUpdate();
             itemsListBox.Items.Clear();
 
-            foreach (var item in _items)
+            foreach (var item in _displayedItems)
             {
-                itemsListBox.Items.Add($"{item.Id}: {item.Name}");
+                itemsListBox.Items.Add($"{item.Id}: {item.Name} - {item.Cost:C}");
             }
+
+            if (_currentItem != null)
+            {
+                int index = _displayedItems.IndexOf(_currentItem);
+                if (index != -1)
+                {
+                    itemsListBox.SelectedIndex = index;
+                }
+                else
+                {
+                    _currentItem = null;
+                    ClearFields();
+                }
+            }
+
+            itemsListBox.EndUpdate();
         }
 
         /// <summary>
-        /// Очищает текстовые поля ввода.
+        /// Очищает поля ввода информации о товаре.
         /// </summary>
         private void ClearFields()
         {
@@ -86,16 +158,17 @@ namespace ObjectOrientedPractics.View.Tabs
             costTextBox.Clear();
             nameTextBox.Clear();
             descriptionTextBox.Clear();
-            categoryComboBox.SelectedIndex = 0; // Устанавливаем первый элемент вместо -1
+            categoryComboBox.SelectedIndex = 0;
 
-            // Сбрасываем цвет фона
             costTextBox.BackColor = Color.White;
             nameTextBox.BackColor = Color.White;
             descriptionTextBox.BackColor = Color.White;
+
+            removeButton.Enabled = false;
         }
 
         /// <summary>
-        /// Отображает информацию о выбранном товаре.
+        /// Отображает информацию о выбранном товаре в полях ввода.
         /// </summary>
         private void ShowItemInfo()
         {
@@ -107,22 +180,34 @@ namespace ObjectOrientedPractics.View.Tabs
                 descriptionTextBox.Text = _currentItem.Info;
                 categoryComboBox.SelectedItem = _currentItem.Category;
 
-                // Устанавливаем белый цвет при отображении
                 costTextBox.BackColor = Color.White;
                 nameTextBox.BackColor = Color.White;
                 descriptionTextBox.BackColor = Color.White;
-            }
-            else
-            {
-                ClearFields();
+
+                removeButton.Enabled = true;
             }
         }
 
         /// <summary>
-        /// Обработчик события изменения выбранного элемента в списке товаров.
+        /// Вызывает событие <see cref="ItemsChanged"/>.
         /// </summary>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Данные события.</param>
+        protected virtual void OnItemsChanged()
+        {
+            ItemsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        #region Обработчики событий элементов управления
+
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            UpdateDisplayedItems();
+        }
+
+        private void SortComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateDisplayedItems();
+        }
+
         private void ItemsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (itemsListBox.SelectedIndex == -1)
@@ -132,218 +217,322 @@ namespace ObjectOrientedPractics.View.Tabs
                 return;
             }
 
-            _currentItem = _items[itemsListBox.SelectedIndex];
-            ShowItemInfo();
+            int selectedIndex = itemsListBox.SelectedIndex;
+            if (selectedIndex >= 0 && selectedIndex < _displayedItems.Count)
+            {
+                _currentItem = _displayedItems[selectedIndex];
+                ShowItemInfo();
+            }
         }
 
-        /// <summary>
-        /// Обработчик события нажатия кнопки добавления товара.
-        /// </summary>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Данные события.</param>
         private void AddButton_Click(object sender, EventArgs e)
         {
             try
             {
-                string name = nameTextBox.Text;
-                string info = descriptionTextBox.Text;
-
-                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(info))
+                if (string.IsNullOrWhiteSpace(nameTextBox.Text))
                 {
-                    MessageBox.Show("Please enter name and description");
+                    MessageBox.Show("Введите название товара", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    nameTextBox.Focus();
+                    nameTextBox.BackColor = Color.LightPink;
                     return;
                 }
 
-                if (!double.TryParse(costTextBox.Text, out double cost) || cost < 0)
+                if (!decimal.TryParse(costTextBox.Text, out decimal cost))
                 {
-                    MessageBox.Show("Please enter valid cost");
+                    MessageBox.Show("Введите корректную стоимость", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    costTextBox.Focus();
+                    costTextBox.BackColor = Color.LightPink;
                     return;
                 }
 
-                // Исправлено: проверяем, что выбран элемент и он не NULL
+                if (cost < 0 || cost > 100000)
+                {
+                    MessageBox.Show("Стоимость должна быть от 0 до 100 000", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    costTextBox.Focus();
+                    costTextBox.BackColor = Color.LightPink;
+                    return;
+                }
+
                 if (categoryComboBox.SelectedItem == null)
                 {
-                    MessageBox.Show("Please select category");
+                    MessageBox.Show("Выберите категорию", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // Создаем товар с уникальным ID
-                int nextId = GetNextId();
-                Category category = (Category)categoryComboBox.SelectedItem; // Теперь безопасно
-                Item newItem = new Item(nextId, name, info, cost, category);
+                try
+                {
+                    ValueValidator.AssertStringOnLength(nameTextBox.Text.Trim(), 200, "Название");
+                    nameTextBox.BackColor = Color.White;
+                }
+                catch (ArgumentException ex)
+                {
+                    MessageBox.Show($"Ошибка в названии: {ex.Message}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    nameTextBox.Focus();
+                    nameTextBox.BackColor = Color.LightPink;
+                    return;
+                }
+
+                try
+                {
+                    ValueValidator.AssertStringOnLength(descriptionTextBox.Text.Trim(), 1000, "Описание");
+                    descriptionTextBox.BackColor = Color.White;
+                }
+                catch (ArgumentException ex)
+                {
+                    MessageBox.Show($"Ошибка в описании: {ex.Message}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    descriptionTextBox.Focus();
+                    descriptionTextBox.BackColor = Color.LightPink;
+                    return;
+                }
+
+                Category category = (Category)categoryComboBox.SelectedItem;
+
+                Item newItem = new Item(
+                    nameTextBox.Text.Trim(),
+                    descriptionTextBox.Text.Trim(),
+                    cost,
+                    category
+                );
+
                 _items.Add(newItem);
-
-                UpdateListBox();
+                UpdateDisplayedItems();
                 ClearFields();
+                OnItemsChanged();
 
-                MessageBox.Show("Item added!");
+                MessageBox.Show("Товар успешно добавлен!", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show($"Ошибка валидации: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}");
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        /// <summary>
-        /// Обработчик события нажатия кнопки удаления товара.
-        /// </summary>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Данные события.</param>
         private void RemoveButton_Click(object sender, EventArgs e)
         {
-            if (itemsListBox.SelectedIndex == -1)
+            if (_currentItem == null)
             {
-                MessageBox.Show("Select item to remove");
+                MessageBox.Show("Выберите товар для удаления", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            int index = itemsListBox.SelectedIndex;
-            _items.RemoveAt(index);
+            var result = MessageBox.Show($"Удалить товар '{_currentItem.Name}'?", "Подтверждение",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            UpdateListBox();
-            ClearFields();
-            _currentItem = null;
+            if (result == DialogResult.Yes)
+            {
+                _items.Remove(_currentItem);
+                UpdateDisplayedItems();
+                ClearFields();
+                _currentItem = null;
+                OnItemsChanged();
 
-            MessageBox.Show("Item removed!");
+                MessageBox.Show("Товар удален", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
-        /// <summary>
-        /// Обработчик события изменения текста в поле Name.
-        /// </summary>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Данные события.</param>
         private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
-            if (_currentItem != null)
+            if (_currentItem != null && !_isUpdating)
             {
                 try
                 {
-                    // Проверяем валидность имени
-                    bool isValid = ValueValidator.ValidateStringLength(
-                        nameTextBox.Text, 1000, "Name");
-
-                    // Меняем цвет фона
-                    nameTextBox.BackColor = isValid ? Color.White : Color.LightPink;
-
-                    if (isValid)
-                    {
-                        _currentItem.Name = nameTextBox.Text;
-                        UpdateListBox();
-                    }
+                    _currentItem.Name = nameTextBox.Text;
+                    nameTextBox.BackColor = Color.White;
+                    UpdateListBox();
+                    OnItemsChanged();
                 }
-                catch
+                catch (ArgumentException)
                 {
-                    // Если ошибка - подсвечиваем красным
                     nameTextBox.BackColor = Color.LightPink;
                 }
             }
-            else
-            {
-                // Проверка при вводе нового элемента
-                bool isValid = ValueValidator.ValidateStringLength(
-                    nameTextBox.Text, 1000, "Name");
-                nameTextBox.BackColor = isValid ? Color.White : Color.LightPink;
-            }
         }
 
-        /// <summary>
-        /// Обработчик события изменения текста в поле Cost.
-        /// </summary>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Данные события.</param>
-        private void CostTextBox_TextChanged(object sender, EventArgs e)
+        private void NameTextBox_Leave(object sender, EventArgs e)
         {
-            if (_currentItem != null)
+            if (_currentItem != null && !_isUpdating)
             {
                 try
                 {
-                    if (double.TryParse(costTextBox.Text, out double cost))
-                    {
-                        bool isValid = ValueValidator.ValidateCostInRange(cost, 0, 100000, "Cost");
-                        costTextBox.BackColor = isValid ? Color.White : Color.LightPink;
+                    ValueValidator.AssertStringOnLength(nameTextBox.Text, 200, "Название");
+                    nameTextBox.BackColor = Color.White;
+                }
+                catch (ArgumentException)
+                {
+                    nameTextBox.BackColor = Color.LightPink;
+                }
+            }
+            else if (!_isUpdating && !string.IsNullOrWhiteSpace(nameTextBox.Text))
+            {
+                try
+                {
+                    ValueValidator.AssertStringOnLength(nameTextBox.Text, 200, "Название");
+                    nameTextBox.BackColor = Color.White;
+                }
+                catch (ArgumentException)
+                {
+                    nameTextBox.BackColor = Color.LightPink;
+                }
+            }
+        }
 
-                        if (isValid)
-                        {
-                            _currentItem.Cost = cost;
-                        }
+        private void CostTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_currentItem != null && !_isUpdating)
+            {
+                try
+                {
+                    if (decimal.TryParse(costTextBox.Text, out decimal cost))
+                    {
+                        _currentItem.Cost = cost;
+                        costTextBox.BackColor = Color.White;
+                        UpdateListBox();
+                        OnItemsChanged();
                     }
-                    else
+                    else if (!string.IsNullOrWhiteSpace(costTextBox.Text))
                     {
                         costTextBox.BackColor = Color.LightPink;
                     }
                 }
-                catch
-                {
-                    // Если ошибка - ничего не делаем
-                }
-            }
-            else
-            {
-                // Проверка при вводе нового элемента
-                if (double.TryParse(costTextBox.Text, out double cost))
-                {
-                    bool isValid = ValueValidator.ValidateCostInRange(cost, 0, 100000, "Cost");
-                    costTextBox.BackColor = isValid ? Color.White : Color.LightPink;
-                }
-                else if (string.IsNullOrEmpty(costTextBox.Text))
-                {
-                    costTextBox.BackColor = Color.White;
-                }
-                else
+                catch (ArgumentException)
                 {
                     costTextBox.BackColor = Color.LightPink;
                 }
             }
         }
 
-        /// <summary>
-        /// Обработчик события изменения текста в поле Description.
-        /// </summary>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Данные события.</param>
-        private void DescriptionTextBox_TextChanged(object sender, EventArgs e)
+        private void CostTextBox_Leave(object sender, EventArgs e)
         {
-            if (_currentItem != null)
+            if (_currentItem != null && !_isUpdating)
             {
                 try
                 {
-                    // Проверяем валидность описания
-                    bool isValid = ValueValidator.ValidateStringLength(
-                        descriptionTextBox.Text, 10000, "Description");
-
-                    // Меняем цвет фона
-                    descriptionTextBox.BackColor = isValid ? Color.White : Color.LightPink;
-
-                    if (isValid)
+                    if (decimal.TryParse(costTextBox.Text, out decimal cost))
                     {
-                        _currentItem.Info = descriptionTextBox.Text;
+                        ValueValidator.AssertValueInRange(cost, 0, 100000, "Стоимость");
+                        costTextBox.BackColor = Color.White;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(costTextBox.Text))
+                    {
+                        costTextBox.BackColor = Color.LightPink;
                     }
                 }
-                catch
+                catch (ArgumentException)
                 {
-                    // Если ошибка - подсвечиваем красным
-                    descriptionTextBox.BackColor = Color.LightPink;
+                    costTextBox.BackColor = Color.LightPink;
                 }
             }
-            else
+            else if (!_isUpdating && !string.IsNullOrWhiteSpace(costTextBox.Text))
             {
-                // Проверка при вводе нового элемента
-                bool isValid = ValueValidator.ValidateStringLength(
-                    descriptionTextBox.Text, 10000, "Description");
-                descriptionTextBox.BackColor = isValid ? Color.White : Color.LightPink;
+                try
+                {
+                    if (decimal.TryParse(costTextBox.Text, out decimal cost))
+                    {
+                        ValueValidator.AssertValueInRange(cost, 0, 100000, "Стоимость");
+                        costTextBox.BackColor = Color.White;
+                    }
+                    else
+                    {
+                        costTextBox.BackColor = Color.LightPink;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    costTextBox.BackColor = Color.LightPink;
+                }
             }
         }
 
-        /// <summary>
-        /// Обработчик события изменения выбранной категории.
-        /// </summary>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Данные события.</param>
+        private void DescriptionTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_currentItem != null && !_isUpdating)
+            {
+                try
+                {
+                    _currentItem.Info = descriptionTextBox.Text;
+                    descriptionTextBox.BackColor = Color.White;
+                    OnItemsChanged();
+                }
+                catch (ArgumentException)
+                {
+                    descriptionTextBox.BackColor = Color.LightPink;
+                }
+            }
+        }
+
+        private void DescriptionTextBox_Leave(object sender, EventArgs e)
+        {
+            if (_currentItem != null && !_isUpdating)
+            {
+                try
+                {
+                    ValueValidator.AssertStringOnLength(descriptionTextBox.Text, 1000, "Описание");
+                    descriptionTextBox.BackColor = Color.White;
+                }
+                catch (ArgumentException)
+                {
+                    descriptionTextBox.BackColor = Color.LightPink;
+                }
+            }
+            else if (!_isUpdating && !string.IsNullOrWhiteSpace(descriptionTextBox.Text))
+            {
+                try
+                {
+                    ValueValidator.AssertStringOnLength(descriptionTextBox.Text, 1000, "Описание");
+                    descriptionTextBox.BackColor = Color.White;
+                }
+                catch (ArgumentException)
+                {
+                    descriptionTextBox.BackColor = Color.LightPink;
+                }
+            }
+        }
+
         private void CategoryComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_currentItem != null && categoryComboBox.SelectedItem != null)
+            if (_currentItem != null && categoryComboBox.SelectedItem != null && !_isUpdating)
             {
                 _currentItem.Category = (Category)categoryComboBox.SelectedItem;
+                UpdateListBox();
+                OnItemsChanged();
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Обновляет данные на вкладке.
+        /// </summary>
+        public void RefreshData()
+        {
+            UpdateDisplayedItems();
+        }
+
+        /// <summary>
+        /// Список товаров.
+        /// </summary>
+        public List<Item> Items
+        {
+            get => _items;
+            set
+            {
+                _items = value ?? new List<Item>();
+                UpdateDisplayedItems();
             }
         }
     }

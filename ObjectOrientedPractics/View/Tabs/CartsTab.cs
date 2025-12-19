@@ -1,43 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using ObjectOrientedPractics.Model;
+using ObjectOrientedPractics.Model.Discounts;
+using ObjectOrientedPractics.Model.Enums;
 
 namespace ObjectOrientedPractics.View.Tabs
 {
     /// <summary>
-    /// Вкладка для управления корзинами покупателей.
+    /// Вкладка для работы с корзинами покупателей.
     /// </summary>
     public partial class CartsTab : UserControl
     {
-        /// <summary>
-        /// Список товаров.
-        /// </summary>
-        private List<Item> _items = new List<Item>();
+        private List<Item> _items;
+        private List<Customer> _customers;
+        private Customer _currentCustomer;
+        private bool _isInitialized = false;
 
         /// <summary>
-        /// Список покупателей.
+        /// Событие создания заказа.
         /// </summary>
-        private List<Customer> _customers = new List<Customer>();
+        public event EventHandler OrderCreated;
 
         /// <summary>
-        /// Текущий выбранный покупатель.
-        /// </summary>
-        private Customer? _currentCustomer;
-
-        /// <summary>
-        /// Создает экземпляр класса <see cref="CartsTab"/>.
+        /// Создает новый экземпляр класса <see cref="CartsTab"/>.
         /// </summary>
         public CartsTab()
         {
             InitializeComponent();
-            amountLabel.Text = "0.00";
+            _isInitialized = true;
+            ConfigureControls();
         }
 
         /// <summary>
-        /// Возвращает или задает список товаров.
+        /// Настраивает элементы управления.
+        /// </summary>
+        private void ConfigureControls()
+        {
+            discountsCheckedListBox.CheckOnClick = true;
+            discountsCheckedListBox.SelectionMode = SelectionMode.One;
+
+            discountsCheckedListBox.DisplayMember = "Info";
+
+            createOrderButton.Enabled = false;
+        }
+
+        /// <summary>
+        /// Список товаров.
         /// </summary>
         public List<Item> Items
         {
@@ -45,12 +55,12 @@ namespace ObjectOrientedPractics.View.Tabs
             set
             {
                 _items = value ?? new List<Item>();
-                RefreshData();
+                UpdateItemsListBox();
             }
         }
 
         /// <summary>
-        /// Возвращает или задает список покупателей.
+        /// Список покупателей.
         /// </summary>
         public List<Customer> Customers
         {
@@ -58,7 +68,7 @@ namespace ObjectOrientedPractics.View.Tabs
             set
             {
                 _customers = value ?? new List<Customer>();
-                RefreshData();
+                UpdateCustomersComboBox();
             }
         }
 
@@ -67,163 +77,294 @@ namespace ObjectOrientedPractics.View.Tabs
         /// </summary>
         public void RefreshData()
         {
-            // Обновляем список товаров
-            itemsListBox.Items.Clear();
-            foreach (var item in _items)
-            {
-                itemsListBox.Items.Add($"{item.Name} - {item.Cost:C}");
-            }
+            if (!_isInitialized) return;
 
-            // Обновляем список покупателей
-            customersComboBox.Items.Clear();
-            foreach (var customer in _customers)
-            {
-                customersComboBox.Items.Add(customer.Fullname);
-            }
-
-            // Сбрасываем текущего покупателя
-            _currentCustomer = null;
-            customersComboBox.SelectedIndex = -1;
-            cartListBox.Items.Clear();
-            amountLabel.Text = "0.00";
+            UpdateItemsListBox();
+            UpdateCustomersComboBox();
         }
 
         /// <summary>
-        /// Обновляет отображение корзины текущего покупателя.
+        /// Обновляет список товаров в ListBox.
         /// </summary>
-        private void UpdateCartDisplay()
+        private void UpdateItemsListBox()
         {
+            if (!_isInitialized) return;
+
+            itemsListBox.BeginUpdate();
+            itemsListBox.Items.Clear();
+
+            if (_items != null)
+            {
+                foreach (var item in _items)
+                {
+                    itemsListBox.Items.Add($"{item.Name} - {item.Cost:C}");
+                }
+            }
+
+            itemsListBox.EndUpdate();
+        }
+
+        /// <summary>
+        /// Обновляет список покупателей в ComboBox.
+        /// </summary>
+        private void UpdateCustomersComboBox()
+        {
+            if (!_isInitialized) return;
+
+            customersComboBox.BeginUpdate();
+            customersComboBox.Items.Clear();
+
+            if (_customers != null)
+            {
+                foreach (var customer in _customers)
+                {
+                    customersComboBox.Items.Add(customer.FullName);
+                }
+            }
+
+            if (customersComboBox.Items.Count > 0)
+            {
+                customersComboBox.SelectedIndex = 0;
+            }
+            customersComboBox.EndUpdate();
+        }
+
+        /// <summary>
+        /// Обновляет список товаров в корзине.
+        /// </summary>
+        private void UpdateCartListBox()
+        {
+            if (!_isInitialized) return;
+
+            cartListBox.BeginUpdate();
             cartListBox.Items.Clear();
-            if (_currentCustomer != null && _currentCustomer.Cart != null)
+
+            if (_currentCustomer != null && _currentCustomer.Cart != null && _currentCustomer.Cart.Items != null)
             {
                 foreach (var item in _currentCustomer.Cart.Items)
                 {
                     cartListBox.Items.Add($"{item.Name} - {item.Cost:C}");
                 }
+            }
+
+            cartListBox.EndUpdate();
+            UpdateAmountLabels();
+        }
+
+        /// <summary>
+        /// Обновляет суммы и доступность кнопок.
+        /// </summary>
+        private void UpdateAmountLabels()
+        {
+            if (!_isInitialized) return;
+
+            if (_currentCustomer != null && _currentCustomer.Cart != null)
+            {
                 amountLabel.Text = _currentCustomer.Cart.Amount.ToString("F2");
+                CalculateDiscounts();
+                createOrderButton.Enabled = _currentCustomer.Cart.Items.Count > 0;
             }
             else
             {
-                amountLabel.Text = "0.00";
+                amountLabel.Text = "0,00";
+                discountAmountLabel.Text = "0,00";
+                totalLabel.Text = "0,00";
+                createOrderButton.Enabled = false;
             }
         }
 
         /// <summary>
-        /// Обработчик изменения выбранного покупателя.
+        /// Вычисляет скидки для текущей корзины.
         /// </summary>
+        private void CalculateDiscounts()
+        {
+            if (!_isInitialized) return;
+            if (_currentCustomer == null || _currentCustomer.Cart == null || _currentCustomer.Cart.Items == null)
+            {
+                discountAmountLabel.Text = "0,00";
+                totalLabel.Text = "0,00";
+                return;
+            }
+
+            decimal totalDiscount = 0;
+
+            for (int i = 0; i < discountsCheckedListBox.Items.Count; i++)
+            {
+                if (discountsCheckedListBox.GetItemChecked(i))
+                {
+                    if (discountsCheckedListBox.Items[i] is IDiscount discount)
+                    {
+                        totalDiscount += discount.Calculate(_currentCustomer.Cart.Items);
+                    }
+                }
+            }
+
+            decimal cartAmount = _currentCustomer.Cart.Amount;
+            discountAmountLabel.Text = totalDiscount.ToString("F2");
+            totalLabel.Text = (cartAmount - totalDiscount).ToString("F2");
+        }
+
+        /// <summary>
+        /// Обновляет список скидок в CheckedListBox.
+        /// </summary>
+        private void UpdateDiscountsListBox()
+        {
+            if (!_isInitialized) return;
+
+            discountsCheckedListBox.BeginUpdate();
+            discountsCheckedListBox.Items.Clear();
+
+            if (_currentCustomer != null && _currentCustomer.Discounts != null)
+            {
+                foreach (var discount in _currentCustomer.Discounts)
+                {
+                    discountsCheckedListBox.Items.Add(discount, true);
+                }
+            }
+
+            discountsCheckedListBox.EndUpdate();
+            CalculateDiscounts();
+        }
+
+        #region Обработчики событий элементов управления
+
         private void CustomersComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!_isInitialized) return;
             if (customersComboBox.SelectedIndex >= 0 && customersComboBox.SelectedIndex < _customers.Count)
             {
                 _currentCustomer = _customers[customersComboBox.SelectedIndex];
-                UpdateCartDisplay();
-            }
-            else
-            {
-                _currentCustomer = null;
-                cartListBox.Items.Clear();
-                amountLabel.Text = "0.00";
+                priorityCheckBox.Checked = _currentCustomer.IsPriority;
+                UpdateCartListBox();
+                UpdateDiscountsListBox();
             }
         }
 
-        /// <summary>
-        /// Обработчик нажатия кнопки добавления товара в корзину.
-        /// </summary>
         private void AddToCartButton_Click(object sender, EventArgs e)
         {
-            if (_currentCustomer == null)
-            {
-                MessageBox.Show("Please select a customer first.", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (!_isInitialized || _currentCustomer == null || itemsListBox.SelectedIndex < 0) return;
 
-            if (itemsListBox.SelectedIndex == -1)
+            int selectedIndex = itemsListBox.SelectedIndex;
+            if (selectedIndex >= 0 && selectedIndex < _items.Count)
             {
-                MessageBox.Show("Please select an item to add to cart.", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                var itemToAdd = _items[selectedIndex];
+                _currentCustomer.Cart.Items.Add(itemToAdd);
+                UpdateCartListBox();
             }
-
-            var selectedItem = _items[itemsListBox.SelectedIndex];
-            _currentCustomer.Cart.Items.Add(selectedItem);
-            UpdateCartDisplay();
         }
 
-        /// <summary>
-        /// Обработчик нажатия кнопки удаления товара из корзины.
-        /// </summary>
         private void RemoveItemButton_Click(object sender, EventArgs e)
         {
-            if (_currentCustomer == null || cartListBox.SelectedIndex == -1)
-            {
-                MessageBox.Show("Please select a customer and item to remove.", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (!_isInitialized || _currentCustomer == null || cartListBox.SelectedIndex < 0) return;
 
-            _currentCustomer.Cart.Items.RemoveAt(cartListBox.SelectedIndex);
-            UpdateCartDisplay();
+            int selectedIndex = cartListBox.SelectedIndex;
+            if (selectedIndex >= 0 && selectedIndex < _currentCustomer.Cart.Items.Count)
+            {
+                _currentCustomer.Cart.Items.RemoveAt(selectedIndex);
+                UpdateCartListBox();
+            }
         }
 
-        /// <summary>
-        /// Обработчик нажатия кнопки очистки корзины.
-        /// </summary>
         private void ClearCartButton_Click(object sender, EventArgs e)
         {
-            if (_currentCustomer == null)
-            {
-                MessageBox.Show("Please select a customer first.", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (!_isInitialized || _currentCustomer == null) return;
 
-            _currentCustomer.Cart.Items.Clear();
-            UpdateCartDisplay();
+            var result = MessageBox.Show("Очистить корзину?", "Подтверждение",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                _currentCustomer.Cart.Items.Clear();
+                UpdateCartListBox();
+            }
         }
 
-        /// <summary>
-        /// Обработчик нажатия кнопки создания заказа.
-        /// </summary>
         private void CreateOrderButton_Click(object sender, EventArgs e)
         {
-            if (_currentCustomer == null)
+            if (!_isInitialized || _currentCustomer == null ||
+                _currentCustomer.Cart == null || _currentCustomer.Cart.Items.Count == 0)
             {
-                MessageBox.Show("Please select a customer first.", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (_currentCustomer.Cart.Items.Count == 0)
-            {
-                MessageBox.Show("Cart is empty. Add items to cart before creating an order.", "Warning",
+                MessageBox.Show("Корзина пуста!", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
-                // Создаем новый заказ
-                int orderId = _currentCustomer.Orders.Count + 1;
-                var orderItems = new List<Item>(_currentCustomer.Cart.Items);
-                var order = new Order(orderId, _currentCustomer.Address, orderItems);
+                Order order;
 
-                // Добавляем заказ в список заказов покупателя
+                if (_currentCustomer.IsPriority)
+                {
+                    order = new PriorityOrder
+                    {
+                        Items = new List<Item>(_currentCustomer.Cart.Items.Select(item => (Item)item.Clone())),
+                        Address = (Address)_currentCustomer.Address.Clone(),
+                        Status = OrderStatus.New,
+                        DiscountAmount = 0,
+                        DesiredDeliveryDate = DateTime.Now.AddDays(1),
+                        DeliveryTime = DeliveryTime.NineToEleven
+                    };
+                }
+                else
+                {
+                    order = new Order
+                    {
+                        Items = new List<Item>(_currentCustomer.Cart.Items.Select(item => (Item)item.Clone())),
+                        Address = (Address)_currentCustomer.Address.Clone(),
+                        Status = OrderStatus.New,
+                        DiscountAmount = 0
+                    };
+                }
+
+                decimal totalDiscount = 0;
+
+                for (int i = 0; i < discountsCheckedListBox.Items.Count; i++)
+                {
+                    if (discountsCheckedListBox.GetItemChecked(i))
+                    {
+                        if (discountsCheckedListBox.Items[i] is IDiscount discount)
+                        {
+                            totalDiscount += discount.Apply(order.Items);
+                        }
+                    }
+                }
+                order.DiscountAmount = totalDiscount;
+
+                foreach (var discount in _currentCustomer.Discounts)
+                {
+                    discount.Update(order.Items);
+                }
+
                 _currentCustomer.Orders.Add(order);
 
-                // Очищаем корзину
                 _currentCustomer.Cart.Items.Clear();
+                UpdateCartListBox();
+                UpdateDiscountsListBox();
 
-                UpdateCartDisplay();
+                OrderCreated?.Invoke(this, EventArgs.Empty);
 
-                MessageBox.Show($"Order #{order.Id} created successfully!", "Success",
+                MessageBox.Show("Заказ успешно создан!", "Успех",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error creating order: {ex.Message}", "Error",
+                MessageBox.Show($"Ошибка при создании заказа: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void DiscountsCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (!_isInitialized) return;
+
+            this.BeginInvoke(new Action(() => CalculateDiscounts()));
+        }
+
+        private void PriorityCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            priorityCheckBox.Enabled = false;
+        }
+
+        #endregion
     }
 }

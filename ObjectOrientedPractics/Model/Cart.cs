@@ -1,47 +1,90 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ObjectOrientedPractics.Model
 {
     /// <summary>
-    /// Представляет корзину товаров покупателя.
+    /// Представляет корзину покупателя.
     /// </summary>
-    public class Cart
+    public class Cart : ICloneable
     {
         /// <summary>
         /// Список товаров в корзине.
         /// </summary>
-        private List<Item> _items;
+        public List<Item> Items { get; set; }
 
         /// <summary>
-        /// Создает экземпляр класса <see cref="Cart"/> с пустым списком товаров.
+        /// Создает новую корзину.
         /// </summary>
         public Cart()
         {
-            _items = new List<Item>();
+            Items = new List<Item>();
         }
 
         /// <summary>
-        /// Возвращает или задает список товаров в корзине.
+        /// Создает корзину с заданными товарами.
         /// </summary>
-        public List<Item> Items
+        public Cart(List<Item> items)
         {
-            get { return _items; }
-            set { _items = value ?? new List<Item>(); }
+            Items = items ?? new List<Item>();
         }
 
         /// <summary>
-        /// Возвращает общую стоимость всех товаров в корзине.
-        /// Если список пустой или равен null, возвращает 0.0.
+        /// Добавляет товар в корзину.
         /// </summary>
-        public double Amount
+        public void AddItem(Item item)
+        {
+            if (item != null)
+            {
+                Items.Add(item);
+            }
+        }
+
+        /// <summary>
+        /// Удаляет товар из корзины.
+        /// </summary>
+        public void RemoveItem(Item item)
+        {
+            if (item != null)
+            {
+                Items.Remove(item);
+            }
+        }
+
+        /// <summary>
+        /// Очищает корзину.
+        /// </summary>
+        public void Clear()
+        {
+            Items.Clear();
+        }
+
+        /// <summary>
+        /// Создает копию корзины.
+        /// </summary>
+        public object Clone()
+        {
+            var clonedItems = new List<Item>();
+            foreach (var item in Items)
+            {
+                clonedItems.Add((Item)item.Clone());
+            }
+            return new Cart(clonedItems);
+        }
+
+        /// <summary>
+        /// Общая стоимость товаров в корзине.
+        /// </summary>
+        public decimal Amount
         {
             get
             {
-                if (_items == null || _items.Count == 0)
-                    return 0.0;
-
-                return _items.Sum(item => item.Cost);
+                decimal total = 0;
+                foreach (var item in Items)
+                {
+                    total += item.Cost;
+                }
+                return total;
             }
         }
     }

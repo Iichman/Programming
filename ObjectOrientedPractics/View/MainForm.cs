@@ -1,75 +1,89 @@
+п»їusing System;
 using System.Windows.Forms;
 using ObjectOrientedPractics.Model;
-using ObjectOrientedPractics.View.Tabs;
 
-namespace ObjectOrientedPractics.View
+namespace ObjectOrientedPractics
 {
     /// <summary>
-    /// Главная форма приложения.
+    /// Р“Р»Р°РІРЅР°СЏ С„РѕСЂРјР° РїСЂРёР»РѕР¶РµРЅРёСЏ.
     /// </summary>
     public partial class MainForm : Form
     {
-        /// <summary>
-        /// Магазин - основной объект бизнес-логики.
-        /// </summary>
-        private Store _store = new Store();
+        private Store _store;
 
         /// <summary>
-        /// Создает экземпляр класса <see cref="MainForm"/>.
+        /// РЎРѕР·РґР°РµС‚ РіР»Р°РІРЅСѓСЋ С„РѕСЂРјСѓ.
         /// </summary>
         public MainForm()
         {
             InitializeComponent();
-            Text = "Object Oriented Practics";
 
-            // Инициализация данных
-            InitializeStoreData();
-            InitializeTabs();
+            // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РґР°РЅРЅС‹Рµ РїРѕСЃР»Рµ РїРѕР»РЅРѕР№ Р·Р°РіСЂСѓР·РєРё С„РѕСЂРјС‹
+            this.Load += MainForm_Load;
+        }
 
-            // Настройка обработчика событий для обновления вкладки корзин
-            tabControl.SelectedIndexChanged += TabControl_SelectedIndexChanged!;
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            InitializeData();
         }
 
         /// <summary>
-        /// Инициализирует тестовые данные магазина.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РґР°РЅРЅС‹Рµ.
         /// </summary>
-        private void InitializeStoreData()
+        private void InitializeData()
         {
-            // Добавляем тестовые товары
-            _store.Items.Add(new Item(1, "Laptop", "High-performance laptop", 999.99, Category.Electronics));
-            _store.Items.Add(new Item(2, "Book", "Programming guide", 29.99, Category.Books));
-            _store.Items.Add(new Item(3, "T-Shirt", "Cotton t-shirt", 19.99, Category.Clothing));
+            _store = new Store();
 
-            // Добавляем тестовых покупателей
-            var address = new Address(123456, "Russia", "Moscow", "Main Street", "10", "25");
-            _store.Customers.Add(new Customer("John Smith", address));
+            // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РІРєР»Р°РґРѕРє
+            itemsTab1.Items = _store.Items;
+            customersTab1.Customers = _store.Customers;
 
-            address = new Address(654321, "Russia", "Saint Petersburg", "Nevsky Prospect", "5", "12");
-            _store.Customers.Add(new Customer("Jane Doe", address));
+            // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РґР°РЅРЅС‹Рµ РґР»СЏ CartsTab Рё OrdersTab
+            cartsTab1.Items = _store.Items;
+            cartsTab1.Customers = _store.Customers;
+            ordersTab1.Customers = _store.Customers;
+
+            // РџРѕРґРїРёСЃРєР° РЅР° СЃРѕР±С‹С‚РёСЏ
+            cartsTab1.OrderCreated += CartsTab1_OrderCreated;
+            itemsTab1.ItemsChanged += ItemsTab1_ItemsChanged;
         }
 
-        /// <summary>
-        /// Инициализирует данные на вкладках.
-        /// </summary>
-        private void InitializeTabs()
+        private void CartsTab1_OrderCreated(object sender, EventArgs e)
         {
-            // Передаем данные на вкладки
-            itemsTab.Items = _store.Items;
-            customersTab.Customers = _store.Customers;
-            cartsTab.Items = _store.Items;
-            cartsTab.Customers = _store.Customers;
+            // РћР±РЅРѕРІР»СЏРµРј СЃРїРёСЃРѕРє Р·Р°РєР°Р·РѕРІ РїСЂРё СЃРѕР·РґР°РЅРёРё РЅРѕРІРѕРіРѕ Р·Р°РєР°Р·Р°
+            ordersTab1.Customers = _store.Customers;
         }
 
-        /// <summary>
-        /// Обработчик события изменения выбранной вкладки.
-        /// </summary>
-        private void TabControl_SelectedIndexChanged(object sender, System.EventArgs e)
+        private void ItemsTab1_ItemsChanged(object sender, EventArgs e)
         {
-            // Если переключились на вкладку Carts, обновляем данные
-            if (tabControl.SelectedTab == cartsTabPage)
+            // РћР±РЅРѕРІР»СЏРµРј СЃРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ РІ CartsTab
+            cartsTab1.Items = _store.Items;
+            cartsTab1.RefreshData();
+        }
+
+        private void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // РћР±РЅРѕРІР»РµРЅРёРµ РґР°РЅРЅС‹С… РїСЂРё РїРµСЂРµРєР»СЋС‡РµРЅРёРё РІРєР»Р°РґРѕРє
+            if (tabControl1.SelectedTab == tabPage4) // Orders tab
             {
-                cartsTab.RefreshData();
+                ordersTab1.Customers = _store.Customers;
             }
+            else if (tabControl1.SelectedTab == tabPage3) // Carts tab
+            {
+                cartsTab1.Items = _store.Items;
+                cartsTab1.Customers = _store.Customers;
+                cartsTab1.RefreshData();
+            }
+        }
+
+        private void itemsTab1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void customersTab1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

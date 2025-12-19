@@ -1,47 +1,62 @@
-﻿using System.Collections.Generic;
+﻿using ObjectOrientedPractics.Model.Discounts;
+using ObjectOrientedPractics.Model.Enums;
+using System.Collections.Generic;
 
 namespace ObjectOrientedPractics.Model
 {
     /// <summary>
-    /// Представляет магазин, содержащий списки товаров и покупателей.
+    /// Представляет магазин.
     /// </summary>
     public class Store
     {
         /// <summary>
-        /// Список товаров магазина.
+        /// Список товаров в магазине.
         /// </summary>
-        private List<Item> _items;
+        public List<Item> Items { get; set; }
 
         /// <summary>
         /// Список покупателей магазина.
         /// </summary>
-        private List<Customer> _customers;
+        public List<Customer> Customers { get; set; }
 
         /// <summary>
-        /// Создает экземпляр класса <see cref="Store"/> с пустыми списками товаров и покупателей.
+        /// Создает новый магазин с тестовыми данными.
         /// </summary>
         public Store()
         {
-            _items = new List<Item>();
-            _customers = new List<Customer>();
+            Items = new List<Item>();
+            Customers = new List<Customer>();
+
+            InitializeTestData();
         }
 
         /// <summary>
-        /// Возвращает или задает список товаров магазина.
+        /// Инициализирует тестовые данные.
         /// </summary>
-        public List<Item> Items
+        private void InitializeTestData()
         {
-            get { return _items; }
-            set { _items = value ?? new List<Item>(); }
-        }
+            Items.Add(new Item("Ноутбук", "Игровой ноутбук", 85000, Category.Electronics));
+            Items.Add(new Item("Смартфон", "Флагманский смартфон", 65000, Category.Electronics));
+            Items.Add(new Item("Книга", "Программирование на C#", 1500, Category.Books));
+            Items.Add(new Item("Футболка", "Хлопковая футболка", 1200, Category.Clothing));
+            Items.Add(new Item("Кофе", "Арабика 1 кг", 2500, Category.Food));
+            Items.Add(new Item("Стул", "Офисный стул", 5000, Category.Furniture));
 
-        /// <summary>
-        /// Возвращает или задает список покупателей магазина.
-        /// </summary>
-        public List<Customer> Customers
-        {
-            get { return _customers; }
-            set { _customers = value ?? new List<Customer>(); }
+            var address1 = new Address("123456", "Россия", "Москва", "Ленина", "15", "25");
+            var address2 = new Address("654321", "Россия", "Санкт-Петербург", "Невский", "20", "10");
+
+            var customer1 = new Customer("Иван Иванов", address1);
+            var customer2 = new Customer("Мария Петрова", address2);
+
+            customer1.Discounts.Add(new PercentDiscount(Category.Electronics));
+            customer1.Discounts.Add(new PercentDiscount(Category.Books));
+
+            customer2.IsPriority = true;
+            customer2.Discounts.Add(new PercentDiscount(Category.Clothing));
+            customer2.Discounts.Add(new PercentDiscount(Category.Food));
+
+            Customers.Add(customer1);
+            Customers.Add(customer2);
         }
     }
 }

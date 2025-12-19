@@ -1,38 +1,167 @@
-﻿using ObjectOrientedPractics.Services;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace ObjectOrientedPractics.Model
 {
     /// <summary>
     /// Представляет адрес доставки.
     /// </summary>
-    public class Address
+    public class Address : ICloneable, IEquatable<Address>
     {
-        private int _index;
-        private string _country = "";
-        private string _city = "";
-        private string _street = "";
-        private string _building = "";
-        private string _apartment = "";
+        private string _postIndex;
+        private string _country;
+        private string _city;
+        private string _street;
+        private string _building;
+        private string _apartment;
 
         /// <summary>
-        /// Создает экземпляр класса <see cref="Address"/> с пустыми значениями.
+        /// Событие изменения адреса.
+        /// </summary>
+        public event EventHandler AddressChanged;
+
+        /// <summary>
+        /// Почтовый индекс.
+        /// </summary>
+        public string PostIndex
+        {
+            get => _postIndex;
+            set
+            {
+                if (_postIndex != value)
+                { 
+                    if (!string.IsNullOrEmpty(value) && !IsValidPostIndex(value))
+                    {
+                        throw new ArgumentException("Почтовый индекс должен содержать 6 цифр.");
+                    }
+                    _postIndex = value;
+                    OnAddressChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Страна.
+        /// </summary>
+        public string Country
+        {
+            get => _country;
+            set
+            {
+                if (_country != value)
+                {
+                    if (!string.IsNullOrEmpty(value) && !IsValidName(value))
+                    {
+                        throw new ArgumentException("Название страны может содержать только буквы и пробелы.");
+                    }
+                    _country = value;
+                    OnAddressChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Город.
+        /// </summary>
+        public string City
+        {
+            get => _city;
+            set
+            {
+                if (_city != value)
+                {
+                    if (!string.IsNullOrEmpty(value) && !IsValidName(value))
+                    {
+                        throw new ArgumentException("Название города может содержать только буквы и пробелы.");
+                    }
+                    _city = value;
+                    OnAddressChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Улица.
+        /// </summary>
+        public string Street
+        {
+            get => _street;
+            set
+            {
+                if (_street != value)
+                {
+                    _street = value;
+                    OnAddressChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Здание.
+        /// </summary>
+        public string Building
+        {
+            get => _building;
+            set
+            {
+                if (_building != value)
+                {
+                    _building = value;
+                    OnAddressChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Квартира/офис.
+        /// </summary>
+        public string Apartment
+        {
+            get => _apartment;
+            set
+            {
+                if (_apartment != value)
+                {
+                    _apartment = value;
+                    OnAddressChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Проверяет, является ли почтовый индекс валидным.
+        /// </summary>
+        /// <param name="postIndex">Почтовый индекс для проверки.</param>
+        /// <returns>true, если индекс валиден; иначе false.</returns>
+        private bool IsValidPostIndex(string postIndex)
+        {
+            return Regex.IsMatch(postIndex, @"^\d{6}$");
+        }
+
+        /// <summary>
+        /// Проверяет, является ли название валидным (только буквы и пробелы).
+        /// </summary>
+        /// <param name="name">Название для проверки.</param>
+        /// <returns>true, если название валидно; иначе false.</returns>
+        private bool IsValidName(string name)
+        {
+            return Regex.IsMatch(name, @"^[a-zA-Zа-яА-ЯёЁ\s\-]+$");
+        }
+
+        /// <summary>
+        /// Создает новый адрес.
         /// </summary>
         public Address()
         {
         }
 
         /// <summary>
-        /// Создает экземпляр класса <see cref="Address"/>.
+        /// Создает адрес с заданными параметрами.
         /// </summary>
-        /// <param name="index">Почтовый индекс.</param>
-        /// <param name="country">Страна/регион.</param>
-        /// <param name="city">Город.</param>
-        /// <param name="street">Улица.</param>
-        /// <param name="building">Номер дома.</param>
-        /// <param name="apartment">Номер квартиры.</param>
-        public Address(int index, string country, string city, string street, string building, string apartment)
+        public Address(string postIndex, string country, string city,
+                      string street, string building, string apartment)
         {
-            Index = index;
+            PostIndex = postIndex;
             Country = country;
             City = city;
             Street = street;
@@ -41,93 +170,76 @@ namespace ObjectOrientedPractics.Model
         }
 
         /// <summary>
-        /// Возвращает или задает почтовый индекс. Должен быть шестизначным числом.
+        /// Вызывает событие изменения адреса.
         /// </summary>
-        public int Index
+        protected virtual void OnAddressChanged()
         {
-            get { return _index; }
-            set
-            {
-                if (value < 100000 || value > 999999)
-                {
-                    throw new ArgumentException("Index must be a 6-digit number");
-                }
-                _index = value;
-            }
+            AddressChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
-        /// Возвращает или задает страну/регион. Не более 50 символов.
+        /// Создает копию адреса.
         /// </summary>
-        public string Country
+        public object Clone()
         {
-            get { return _country; }
-            set
-            {
-                ValueValidator.AssertStringOnLength(value, 50, nameof(Country));
-                _country = value;
-            }
+            return new Address(PostIndex, Country, City, Street, Building, Apartment);
         }
 
         /// <summary>
-        /// Возвращает или задает город. Не более 50 символов.
+        /// Сравнивает текущий адрес с другим адресом.
         /// </summary>
-        public string City
+        public bool Equals(Address other)
         {
-            get { return _city; }
-            set
-            {
-                ValueValidator.AssertStringOnLength(value, 50, nameof(City));
-                _city = value;
-            }
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return PostIndex == other.PostIndex &&
+                   Country == other.Country &&
+                   City == other.City &&
+                   Street == other.Street &&
+                   Building == other.Building &&
+                   Apartment == other.Apartment;
         }
 
         /// <summary>
-        /// Возвращает или задает улицу. Не более 100 символов.
+        /// Сравнивает текущий адрес с другим объектом.
         /// </summary>
-        public string Street
+        public override bool Equals(object obj)
         {
-            get { return _street; }
-            set
-            {
-                ValueValidator.AssertStringOnLength(value, 100, nameof(Street));
-                _street = value;
-            }
+            return Equals(obj as Address);
         }
 
         /// <summary>
-        /// Возвращает или задает номер дома. Не более 10 символов.
+        /// Возвращает хэш-код адреса.
         /// </summary>
-        public string Building
+        public override int GetHashCode()
         {
-            get { return _building; }
-            set
-            {
-                ValueValidator.AssertStringOnLength(value, 10, nameof(Building));
-                _building = value;
-            }
+            return HashCode.Combine(PostIndex, Country, City, Street, Building, Apartment);
         }
 
         /// <summary>
-        /// Возвращает или задает номер квартиры. Не более 10 символов.
+        /// Проверяет равенство двух адресов.
         /// </summary>
-        public string Apartment
+        public static bool operator ==(Address left, Address right)
         {
-            get { return _apartment; }
-            set
-            {
-                ValueValidator.AssertStringOnLength(value, 10, nameof(Apartment));
-                _apartment = value;
-            }
+            if (ReferenceEquals(left, right)) return true;
+            if (left is null || right is null) return false;
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Проверяет неравенство двух адресов.
+        /// </summary>
+        public static bool operator !=(Address left, Address right)
+        {
+            return !(left == right);
         }
 
         /// <summary>
         /// Возвращает строковое представление адреса.
         /// </summary>
-        /// <returns>Строка с полным адресом.</returns>
         public override string ToString()
         {
-            return $"{Index}, {Country}, {City}, {Street}, {Building}, {Apartment}";
+            return $"{PostIndex}, {Country}, {City}, {Street}, {Building}, {Apartment}";
         }
     }
 }
