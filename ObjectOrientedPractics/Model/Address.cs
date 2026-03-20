@@ -4,6 +4,40 @@ using System.Text.RegularExpressions;
 namespace ObjectOrientedPractics.Model
 {
     /// <summary>
+    /// Аргументы события изменения адреса.
+    /// </summary>
+    public class AddressChangedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Название измененного свойства адреса.
+        /// </summary>
+        public string PropertyName { get; }
+
+        /// <summary>
+        /// Старое значение свойства.
+        /// </summary>
+        public string OldValue { get; }
+
+        /// <summary>
+        /// Новое значение свойства.
+        /// </summary>
+        public string NewValue { get; }
+
+        /// <summary>
+        /// Создает новый экземпляр <see cref="AddressChangedEventArgs"/>.
+        /// </summary>
+        /// <param name="propertyName">Название измененного свойства.</param>
+        /// <param name="oldValue">Старое значение свойства.</param>
+        /// <param name="newValue">Новое значение свойства.</param>
+        public AddressChangedEventArgs(string propertyName, string oldValue, string newValue)
+        {
+            PropertyName = propertyName;
+            OldValue = oldValue;
+            NewValue = newValue;
+        }
+    }
+
+    /// <summary>
     /// Представляет адрес доставки.
     /// </summary>
     public class Address : ICloneable, IEquatable<Address>
@@ -18,7 +52,7 @@ namespace ObjectOrientedPractics.Model
         /// <summary>
         /// Событие изменения адреса.
         /// </summary>
-        public event EventHandler AddressChanged;
+        public event EventHandler<AddressChangedEventArgs> AddressChanged;
 
         /// <summary>
         /// Почтовый индекс.
@@ -29,13 +63,14 @@ namespace ObjectOrientedPractics.Model
             set
             {
                 if (_postIndex != value)
-                { 
+                {
                     if (!string.IsNullOrEmpty(value) && !IsValidPostIndex(value))
                     {
                         throw new ArgumentException("Почтовый индекс должен содержать 6 цифр.");
                     }
+                    string oldValue = _postIndex;
                     _postIndex = value;
-                    OnAddressChanged();
+                    OnAddressChanged("PostIndex", oldValue, value);
                 }
             }
         }
@@ -54,8 +89,9 @@ namespace ObjectOrientedPractics.Model
                     {
                         throw new ArgumentException("Название страны может содержать только буквы и пробелы.");
                     }
+                    string oldValue = _country;
                     _country = value;
-                    OnAddressChanged();
+                    OnAddressChanged("Country", oldValue, value);
                 }
             }
         }
@@ -74,8 +110,9 @@ namespace ObjectOrientedPractics.Model
                     {
                         throw new ArgumentException("Название города может содержать только буквы и пробелы.");
                     }
+                    string oldValue = _city;
                     _city = value;
-                    OnAddressChanged();
+                    OnAddressChanged("City", oldValue, value);
                 }
             }
         }
@@ -90,8 +127,9 @@ namespace ObjectOrientedPractics.Model
             {
                 if (_street != value)
                 {
+                    string oldValue = _street;
                     _street = value;
-                    OnAddressChanged();
+                    OnAddressChanged("Street", oldValue, value);
                 }
             }
         }
@@ -106,8 +144,9 @@ namespace ObjectOrientedPractics.Model
             {
                 if (_building != value)
                 {
+                    string oldValue = _building;
                     _building = value;
-                    OnAddressChanged();
+                    OnAddressChanged("Building", oldValue, value);
                 }
             }
         }
@@ -122,8 +161,9 @@ namespace ObjectOrientedPractics.Model
             {
                 if (_apartment != value)
                 {
+                    string oldValue = _apartment;
                     _apartment = value;
-                    OnAddressChanged();
+                    OnAddressChanged("Apartment", oldValue, value);
                 }
             }
         }
@@ -172,9 +212,12 @@ namespace ObjectOrientedPractics.Model
         /// <summary>
         /// Вызывает событие изменения адреса.
         /// </summary>
-        protected virtual void OnAddressChanged()
+        /// <param name="propertyName">Название измененного свойства.</param>
+        /// <param name="oldValue">Старое значение свойства.</param>
+        /// <param name="newValue">Новое значение свойства.</param>
+        protected virtual void OnAddressChanged(string propertyName, string oldValue, string newValue)
         {
-            AddressChanged?.Invoke(this, EventArgs.Empty);
+            AddressChanged?.Invoke(this, new AddressChangedEventArgs(propertyName, oldValue, newValue));
         }
 
         /// <summary>
