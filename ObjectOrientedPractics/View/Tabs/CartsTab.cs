@@ -40,9 +40,7 @@ namespace ObjectOrientedPractics.View.Tabs
         {
             discountsCheckedListBox.CheckOnClick = true;
             discountsCheckedListBox.SelectionMode = SelectionMode.One;
-
             discountsCheckedListBox.DisplayMember = "Info";
-
             createOrderButton.Enabled = false;
         }
 
@@ -81,6 +79,17 @@ namespace ObjectOrientedPractics.View.Tabs
 
             UpdateItemsListBox();
             UpdateCustomersComboBox();
+        }
+
+        /// <summary>
+        /// Обновляет список корзин.
+        /// </summary>
+        public void RefreshCartList()
+        {
+            if (!_isInitialized) return;
+
+            UpdateCustomersComboBox();
+            UpdateCartListBox();
         }
 
         /// <summary>
@@ -226,8 +235,6 @@ namespace ObjectOrientedPractics.View.Tabs
             CalculateDiscounts();
         }
 
-        #region Обработчики событий элементов управления
-
         private void CustomersComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!_isInitialized) return;
@@ -364,7 +371,5 @@ namespace ObjectOrientedPractics.View.Tabs
         {
             priorityCheckBox.Enabled = false;
         }
-
-        #endregion
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using ObjectOrientedPractics.Model;
+using ObjectOrientedPractics.View.Tabs;
 
 namespace ObjectOrientedPractics
 {
@@ -17,8 +18,6 @@ namespace ObjectOrientedPractics
         public MainForm()
         {
             InitializeComponent();
-
-            // Инициализируем данные после полной загрузки формы
             this.Load += MainForm_Load;
         }
 
@@ -28,62 +27,54 @@ namespace ObjectOrientedPractics
         }
 
         /// <summary>
-        /// Инициализирует данные.
+        /// Инициализирует данные и подписывается на события.
         /// </summary>
         private void InitializeData()
         {
             _store = new Store();
 
-            // Инициализация вкладок
             itemsTab1.Items = _store.Items;
             customersTab1.Customers = _store.Customers;
-
-            // Устанавливаем данные для CartsTab и OrdersTab
             cartsTab1.Items = _store.Items;
             cartsTab1.Customers = _store.Customers;
             ordersTab1.Customers = _store.Customers;
 
-            // Подписка на события
-            cartsTab1.OrderCreated += CartsTab1_OrderCreated;
             itemsTab1.ItemsChanged += ItemsTab1_ItemsChanged;
+            cartsTab1.OrderCreated += CartsTab1_OrderCreated;
         }
 
+        /// <summary>
+        /// Обработчик события изменения товаров.
+        /// </summary>
+        private void ItemsTab1_ItemsChanged(object sender, ItemsChangedEventArgs e)
+        {
+            cartsTab1.Items = _store.Items;
+
+            if (cartsTab1 is CartsTab cartsTab)
+            {
+                cartsTab.RefreshCartList();
+            }
+        }
+
+        /// <summary>
+        /// Обработчик события создания заказа.
+        /// </summary>
         private void CartsTab1_OrderCreated(object sender, EventArgs e)
         {
-            // Обновляем список заказов при создании нового заказа
             ordersTab1.Customers = _store.Customers;
-        }
 
-        private void ItemsTab1_ItemsChanged(object sender, EventArgs e)
-        {
-            // Обновляем список товаров в CartsTab
-            cartsTab1.Items = _store.Items;
-            cartsTab1.RefreshData();
-        }
-
-        private void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // Обновление данных при переключении вкладок
-            if (tabControl1.SelectedTab == tabPage4) // Orders tab
+            if (ordersTab1 is OrdersTab ordersTab)
             {
-                ordersTab1.Customers = _store.Customers;
-            }
-            else if (tabControl1.SelectedTab == tabPage3) // Carts tab
-            {
-                cartsTab1.Items = _store.Items;
-                cartsTab1.Customers = _store.Customers;
-                cartsTab1.RefreshData();
+                ordersTab.RefreshOrdersList();
             }
         }
 
         private void itemsTab1_Load(object sender, EventArgs e)
         {
-
         }
 
         private void customersTab1_Load(object sender, EventArgs e)
         {
-
         }
     }
 }

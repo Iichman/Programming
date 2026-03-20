@@ -116,22 +116,21 @@ namespace ObjectOrientedPractics.View.Tabs
 
                 if (isPriority1 && !isPriority2)
                 {
-                    e.SortResult = -1; 
+                    e.SortResult = -1;
                 }
                 else if (!isPriority1 && isPriority2)
                 {
-                    e.SortResult = 1; 
+                    e.SortResult = 1;
                 }
                 else
                 {
-                    e.SortResult = 0; 
+                    e.SortResult = 0;
                 }
 
-                e.Handled = true; 
+                e.Handled = true;
             }
             else if (e.Column.Name == "Type")
             {
-                
                 e.SortResult = string.Compare(e.CellValue1?.ToString(), e.CellValue2?.ToString());
                 e.Handled = true;
             }
@@ -172,6 +171,14 @@ namespace ObjectOrientedPractics.View.Tabs
         }
 
         /// <summary>
+        /// Обновляет список заказов.
+        /// </summary>
+        public void RefreshOrdersList()
+        {
+            UpdateOrdersDataGridView();
+        }
+
+        /// <summary>
         /// Обновляет DataGridView с заказами.
         /// </summary>
         private void UpdateOrdersDataGridView()
@@ -192,12 +199,12 @@ namespace ObjectOrientedPractics.View.Tabs
                 string prioritySymbol = order is PriorityOrder ? PrioritySymbol : NonPrioritySymbol;
 
                 ordersDataGridView.Rows.Add(
-                    prioritySymbol,           
-                    order.Id,                
-                    order.Date.ToString("dd.MM.yyyy"), 
-                    order.Status,            
-                    order.Total.ToString("F2"), 
-                    orderType                
+                    prioritySymbol,
+                    order.Id,
+                    order.Date.ToString("dd.MM.yyyy"),
+                    order.Status,
+                    order.Total.ToString("F2"),
+                    orderType
                 );
             }
 
